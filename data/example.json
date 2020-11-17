@@ -1,0 +1,164 @@
+{ "settings": [
+
+		{
+			"tab": "Inhalte",
+			"fields": [
+				{
+					"name": "blockWidth",
+					"type": "select",
+					"label": "Ausgabebreite",
+					"value": {
+						"0": "- keine Begrenzung -",
+						"500": "500 Pixel",
+						"600": "600 Pixel",
+						"700": "700 Pixel",
+						"800": "800 Pixel",
+						"900": "900 Pixel",
+						"1000": "1000 Pixel",
+						"1100": "1100 Pixel"
+					},
+					"multiple": false,
+					"default": "0",
+					"width": ""							
+				},
+
+				{
+					"name": "blockAlign",
+					"type": "select",
+					"label": "Ausrichtung",
+					"value": {
+						"left": "links",
+						"center": "mittig",
+						"right": "rechts"
+					},
+					"multiple": false,
+					"default": "left",
+					"width": ""							
+				}									
+			]
+		},
+	
+		{
+			"tab": "Abstände",
+			"groups": [
+				{
+					"name": "Abstand innen (Pixel)",
+					"inlinefields": true,
+					"fields": [
+						{
+							"name": "paddingLeft",
+							"type": "number",
+							"label": "links",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						},
+
+						{
+							"name": "paddingTop",
+							"type": "number",
+							"label": "oben",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						},
+
+						{
+							"name": "paddingRight",
+							"type": "number",
+							"label": "rechts",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						},
+
+						{
+							"name": "paddingBottom",
+							"type": "number",
+							"label": "unten",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						}
+					]
+				},
+
+				{
+					"name": "Abstand außen (Pixel)",
+					"inlinefields": true,
+					"fields": [
+						{
+							"name": "marginLeft",
+							"type": "number",
+							"label": "links",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75							
+						},
+
+						{
+							"name": "marginTop",
+							"type": "number",
+							"label": "oben",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						},
+
+						{
+							"name": "marginRight",
+							"type": "number",
+							"label": "rechts",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						},
+
+						{
+							"name": "marginBottom",
+							"type": "number",
+							"label": "unten",
+							"value": 0,
+							"maxlength": 3,
+							"min": -100,
+							"max": 100,
+							"width": 75
+						}
+					]
+				}
+			]
+		},	
+
+		{
+			"tab": "Hintergrund",
+			"fields": [
+			]
+		},
+
+		{
+			"tab": "Sichtbarkeit",
+			"fields": [
+			]
+		},
+
+		{
+			"tab": "Sonstiges",
+			"fields": [
+			]
+		}
+		
+]}

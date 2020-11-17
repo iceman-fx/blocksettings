@@ -1,0 +1,172 @@
+# addon: blocksettings de_de
+
+a1604_title = Block-Einstellungen
+
+a1604_default = Allgemein
+a1604_help = Hilfe
+a1604_config = Einstellungen
+
+a1604_head_basics = Definition Block-Einstellungen
+a1604_head_config = Einstellungen
+a1604_head_admin = Administrative Einstellungen
+a1604_head_help = Onlinehilfe
+
+a1604_text1 = 
+
+
+# Globale Felder
+a1604_std_status = Sichtbar / Aktiv
+a1604_std_title = Bezeichnung
+a1604_std_date = Datum
+a1604_std_cat = Kategorie
+a1604_std_detailsite = Verknüpfen mit CMS-Seite
+a1604_std_detailfile = ... oder Datei
+a1604_std_detailextern = ... oder externe Seite
+a1604_std_media = Vorschaubild
+a1604_std_medialist = Galerie
+a1604_std_filelist = Downloads
+a1604_std_video = Video (.mp4)
+a1604_std_youtube = Youtube-ID
+
+
+# Seite: Allgemein
+a1604_bas_settings = Definition (JSON)
+a1604_bas_settings_example = Beispiel einfügen ...
+a1604_bas_whitelistmode = Einfügemodus
+a1604_bas_whitelistmode_auto = Automatisch in alle Modulblöcke
+a1604_bas_whitelistmode_manual = nur in ausgewählte Modulblöcke
+a1604_bas_whitelist = Auswahl Modulblöcke
+
+a1604_bas_list_name = Titel / Bezeichnung
+a1604_bas_list_date = Datum
+a1604_bas_list_options = Anzeigeoptionen
+
+
+# Sonstige Vorgaben
+a1604_settoday = heutiges Datum einfügen
+a1604_example = Beispiel
+a1604_examples = Beispiele...
+a1604_days = Tage
+a1604_clock = Uhr
+a1604_overview = Übersicht:
+
+a1604_search_all = alle
+a1604_search_noselection = - keine Auswahl -
+a1604_search_sort = Ansicht
+a1604_search_sort_onlyactive = nur aktive Einträge (online)
+a1604_search_sort_onlyinactive = nur deaktivierte Einträge (offline)
+a1604_search_keyword = Suchbegriff
+a1604_search_submit = suchen
+a1604_search_reset = Suche zurücksetzen
+a1604_search_notfound = Es wurden keine Einträge gefunden.
+a1604_search_more = mehr Optionen
+a1604_search_cat = Kategorie
+a1604_search_maincat = Hauptkategorie
+a1604_search_archive = Nur Archiveinträge anzeigen
+
+a1604_edit = ändern
+a1604_duplicate = duplizieren
+a1604_delete = löschen
+a1604_online = online
+a1604_offline = offline
+a1604_new = hinzufügen
+a1604_save = Speichern
+a1604_apply = Übernehmen
+a1604_abort = Abbrechen
+a1604_copiedname = _Kopie
+a1604_createandclose = Erstellen & Schließen
+a1604_close = Schließen
+a1604_yes = ja
+a1604_no = nein
+a1604_showbox = anzeigen/ausblenden
+a1604_showcss = CSS anzeigen/ausblenden
+a1604_noselection = - keine Auswahl -
+a1604_copyfromabove = von oben übernehmen
+
+a1604_settings_saved = Die Einstellungen wurden gespeichert!
+a1604_module_saved = Das Modul wurde installiert!
+a1604_error = Es ist ein Fehler aufgetreten!
+a1604_notice = Hinweis
+a1604_entry_saved = Eintrag gespeichert
+a1604_entry_deleted = Eintrag gelöscht
+a1604_error_saved = Fehler beim Speichern
+a1604_error_deleted = Fehler beim Löschen
+
+a1604_dir = Verzeichnis
+a1604_destdir = Zielverzeichnis
+a1604_notdeleted = konnte nicht gelöscht werden
+a1604_notcopyed = konnte nicht kopiert werden
+a1604_deletemodule = Bitte löschen Sie über das Addon installierte Module von Hand.
+a1604_emptyfield = leer oder ungültig
+a1604_charslenfield = ist zu kurz
+
+a1604_edit = ändern
+a1604_delete = löschen
+a1604_online = online
+a1604_offline = offline
+a1604_new = hinzufügen
+a1604_create = erstellen
+a1604_save = Speichern
+a1604_accept = übernehmen
+a1604_open= öffnen
+a1604_remove = entfernen
+a1604_yes = ja
+a1604_no = nein
+a1604_all = alle
+a1604_details = Details
+a1604_statusfunc = Status/Funktionen
+a1604_setstatus = Status ändern
+a1604_showhide = anzeigen/ausblenden
+a1604_german = deutsch
+a1604_english = english
+a1604_selarticle = Artikel auswählen
+a1604_remarticle = Auswahl entfernen
+a1604_moreinfos = mehr Informationen...
+a1604_lessinfos = weniger Informationen...
+a1604_confirmdelete = Soll dieser Eintrag wirklich entfernt werden?
+a1604_confirminstall = Wollen Sie diese Installation wirklich durchführen?
+
+a1604_field = Feld
+a1604_file = Datei
+a1604_dir = Verzeichnis
+a1604_destdir = Zielverzeichnis
+a1604_notdeleted = konnte nicht gelöscht werden
+a1604_notcopyed = konnte nicht kopiert werden
+a1604_emptyfield = leer oder ungültig
+a1604_charslenfield = ist zu kurz
+
+a1604_notice = Hinweis
+a1604_error = Es ist ein Fehler aufgetreten!
+a1604_settings_saved = Die Einstellungen wurden gespeichert
+a1604_entry_saved = Eintrag gespeichert
+a1604_entry_deleted = Eintrag gelöscht
+a1604_entry_used = Eintrag ist einem anderen Datensatz zugeordnet.
+a1604_entry_exists = Ein Eintrag mit dieser Bezeichnung/Kennung existiert bereits.
+a1604_entry_emptyfields = Es wurden nicht alle Pflichtfelder ausgefüllt.
+a1604_entry_emptyfield = Ein zusätzlich benötigtes Feld wurde nicht ausgefüllt
+a1604_entry_badchars = Es wurden unzulässige Zeichen eingegeben
+a1604_error_saved = Fehler beim Speichern
+a1604_error_deleted = Fehler beim Löschen
+a1604_error_setstatus = Fehler beim Statusändern
+a1604_error_setstatus_info = Hinweis: Status wegen bestehender Zuweisung nicht geändert!
+a1604_missingaddon = ACHTUNG! Folgende Addons sind nicht verfügbar:
+a1604_error_writefile = Datei(en) konnte(n) nicht gespeichert werden. Bitte prüfen Sie die Schreibberechtigungen!
+a1604_metafield_saved = Das zusätzliche Meta Info-Feld wurde gespeichert.
+a1604_metafield_exists = Das zusätzliche Meta Info-Feld existiert bereits.
+a1604_rootnotwritable = Achtung: Das Homepage-Startverzeichnis besitzt keine Schreibberechtigung.
+a1604_norights = Für diesen Bereich fehlen Ihnen die notwendigen Rechte.<br />Bei Fragen wenden Sie sich bitte an Ihren Administrator.
+
+a1604_duplicate_title = Mögliche Duplikate gefunden ...
+a1604_duplicate_text = Es existieren bereits Einträge mit diesen Daten:
+a1604_duplicate_link = Zum diesem Eintrag wechseln ...
+
+a1604_media_movetop = Ausgewähltes Medium an den Anfang verschieben
+a1604_media_moveup = Ausgewähltes Medium nach oben verschieben
+a1604_media_movedown = Ausgewähltes Medium nach unten verschieben
+a1604_media_movebottom = Ausgewähltes Medium an das Ende verschieben
+a1604_media_select = Medium auswählen
+a1604_media_add = Neues Medium hinzufügen
+a1604_media_delete = Ausgewähltes Medium löschen
+a1604_media_preview = Ausgewähltes Medium anzeigen
+a1604_link_select = Link auswählen
+a1604_link_delete = Ausgewählten Link löschen
