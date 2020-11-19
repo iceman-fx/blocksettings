@@ -25,17 +25,23 @@ rex_view::addJsFile($this->getAssetsUrl('script.js'));
 
 
 //SettingForm bei Slice-anzeigen einbinden
-
 rex_extension::register( 'SLICE_SHOW', function($ep){
 	$o = new blockSettings();
 	return $o->appendForm($ep);
 });
 
 
-
 //SettingForm-Aktionen
-rex_extension::register( array('SLICE_ADDED', 'SLICE_UPDATED', 'SLICE_DELETED'), function($ep){
+rex_extension::register( array('SLICE_ADDED', 'SLICE_UPDATED'), function($ep){
 	$o = new blockSettings();
 	$o->saveSettings($ep);
 });
+
+
+//bloecks-Addon anbinden
+rex_extension::register( 'SLICE_INSERTED', function($ep){
+	$o = new blockSettings();
+	$o->copySettings($ep);
+});
+
 ?>

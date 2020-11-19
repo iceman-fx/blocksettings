@@ -16,9 +16,14 @@ $error = ""; $notice = "";
 $db = rex_sql::factory();
 $db->setQuery("DROP TABLE IF EXISTS ".rex::getTable('1604_blocksettings'));
 
-
+/*
 $db = rex_sql::factory();
 $db->setQuery("DROP TABLE IF EXISTS ".rex::getTable('1604_blocksettings_slice'));
+*/
+
+rex_sql_table::get(rex::getTable('article_slice'))
+	->removeColumn('bs_settings')
+    ->alter();
 
 
 //Module löschen

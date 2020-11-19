@@ -5,16 +5,10 @@
 .fmBlockSettings { padding-top: 25px; background: #e0f5ee; }
 .fmBlockSettings .fmBS-inner { background: #FFF; }
 
-.fmBlockSettings .fmBS-toggler { position: relative; background: #f3f6fb; cursor: pointer; color: #7d8288; padding: 10px 15px 10px 33px; transition: all .5s ease; }
+.fmBlockSettings .fmBS-toggler { position: relative; background: #f3f6fb; cursor: pointer; color: #7d8288; padding: 10px 30px 10px 15px; transition: all .5s ease; }
 	.fmBlockSettings .fmBS-toggler:hover { background: #FFF; color: #7d8288; }
-	.fmBlockSettings .fmBS-toggler > div { position: absolute; top: 15px; left: 15px; width: 15px; height: 15px; line-height: 0px; }
-	.fmBlockSettings .fmBS-toggler span { display: inline-block; vertical-align: top; width: 2px; height: 2px; background: #7d8288; margin: 0px 2px 2px 0px; box-shadow: 2px 2px 0 0 ##FFF; }
-		.fmBlockSettings .fmBS-toggler i { display: none; }
-	/* Icon */
-	.fmBlockSettings .fmBS-toggler { padding-left: 15px; }
-		.fmBlockSettings .fmBS-toggler > div { position: static; display: inline-block; }
-		.fmBlockSettings .fmBS-toggler span { display: none; }
-		.fmBlockSettings .fmBS-toggler i { display: block; }
+	.fmBlockSettings .fmBS-toggler > div { display: inline-block; width: 15px; height: 15px; line-height: 0px; }
+	.fmBlockSettings .fmBS-toggler > div.fmBS-icon-right { position: absolute; top: 13px; right: 15px; }
 
 .fmBlockSettings .fmBS-content { display: none; padding: 15px; border-top: 1px solid #c1c9d4; }
 .fmBlockSettings .nav > li > a { border-radius: 4px 4px 0px 0px; border-top-width: 2px; border-color: #9ca5b2 #9ca5b2 #9ca5b2; background: #EEE; color: #555; padding: 7px 10px; }
@@ -35,3 +29,5 @@
 /* Felder */
 .fmBlockSettings input[type=number] { padding-right: 1px; }
 .fmBlockSettings input[type=color] { padding-top: 3px; padding-bottom: 3px; }
+.fmBlockSettings textarea { height: auto; }
+.fmBlockSettings .fmBS-rangetext { min-width: 80px; }

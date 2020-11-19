@@ -39,6 +39,7 @@ $db->setQuery("INSERT INTO ".rex::getTable('1604_blocksettings')." (id) SELECT *
 
 
 
+/*
 $db = rex_sql::factory();
 $db->setQuery("CREATE TABLE IF NOT EXISTS ".rex::getTable('1604_blocksettings_slice')." (
 																`id` int(100) NOT NULL AUTO_INCREMENT,
@@ -47,6 +48,12 @@ $db->setQuery("CREATE TABLE IF NOT EXISTS ".rex::getTable('1604_blocksettings_sl
 																PRIMARY KEY (`id`)
 																) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Blocksettings - SliceSettings'"
 );
+*/
+
+rex_sql_table::get(rex::getTable('article_slice'))
+	->ensureColumn(new rex_sql_column('bs_settings', 'text'))
+    ->alter();
+
 
 
 //Module anlegen

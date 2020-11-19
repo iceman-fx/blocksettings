@@ -19,14 +19,6 @@ a1604_std_status = Sichtbar / Aktiv
 a1604_std_title = Bezeichnung
 a1604_std_date = Datum
 a1604_std_cat = Kategorie
-a1604_std_detailsite = Verknüpfen mit CMS-Seite
-a1604_std_detailfile = ... oder Datei
-a1604_std_detailextern = ... oder externe Seite
-a1604_std_media = Vorschaubild
-a1604_std_medialist = Galerie
-a1604_std_filelist = Downloads
-a1604_std_video = Video (.mp4)
-a1604_std_youtube = Youtube-ID
 
 
 # Seite: Allgemein
@@ -40,6 +32,12 @@ a1604_bas_whitelist = Auswahl Modulblöcke
 a1604_bas_list_name = Titel / Bezeichnung
 a1604_bas_list_date = Datum
 a1604_bas_list_options = Anzeigeoptionen
+
+
+# Modulausgabe
+a1604_mod_toggler = Block-Einstellungen
+a1604_mod_toggler_info = Zusätzliche Einstellungen dieses Blockes
+a1604_mod_calendar = Kalender öffnen ...
 
 
 # Sonstige Vorgaben

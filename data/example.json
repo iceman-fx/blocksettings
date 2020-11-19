@@ -18,8 +18,7 @@
 						"1100": "1100 Pixel"
 					},
 					"multiple": false,
-					"default": "0",
-					"width": ""							
+					"default": "0"
 				},
 
 				{
@@ -32,8 +31,7 @@
 						"right": "rechts"
 					},
 					"multiple": false,
-					"default": "left",
-					"width": ""							
+					"default": "left"
 				}									
 			]
 		},
@@ -53,7 +51,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						},
 
 						{
@@ -64,7 +63,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						},
 
 						{
@@ -75,7 +75,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						},
 
 						{
@@ -86,7 +87,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						}
 					]
 				},
@@ -103,7 +105,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75							
+							"width": 75,
+							"suffix": "px"						
 						},
 
 						{
@@ -114,7 +117,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						},
 
 						{
@@ -125,7 +129,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						},
 
 						{
@@ -136,7 +141,8 @@
 							"maxlength": 3,
 							"min": -100,
 							"max": 100,
-							"width": 75
+							"width": 75,
+							"suffix": "px"
 						}
 					]
 				}
@@ -146,19 +152,110 @@
 		{
 			"tab": "Hintergrund",
 			"fields": [
+				{
+					"name": "bgColor",
+					"type": "color",
+					"label": "Hintergrundfarbe",
+					"default": "#FFFFFF",
+					"placeholder": "Bsp: #11AA99"						
+				},
+
+				{
+					"name": "bgImg",
+					"type": "rexmedia",
+					"label": "Hintergrundbild",
+					"mediatypes": "gif,jpg,jpeg,png"
+				}				
 			]
 		},
 
 		{
 			"tab": "Sichtbarkeit",
 			"fields": [
+				{
+					"name": "hideBlock",
+					"type": "checkbox",
+					"label": "Block verstecken",
+					"value": "checked",
+					"placeholder": "Ja, diesen Block unsichtbar schalten"
+				},
+				
+				{
+					"name": "onlineFrom",
+					"type": "datetime",
+					"label": "Sichtbar vom"
+				},
+				
+				{
+					"name": "onlineTo",
+					"type": "datetime",
+					"label": "Sichtbar bis zum"
+				}
 			]
 		},
 
 		{
 			"tab": "Sonstiges",
 			"fields": [
+				{
+					"name": "cssClass",
+					"type": "text",
+					"label": "CSS-Klasse",
+					"maxlength": 30
+				}
 			]
 		}
+
+
+
+
+
+
+
+
+
+		,{
+			"tab": "Test",
+			"fields": [
+				{
+					"name": "test_date",
+					"type": "date",
+					"label": "Date"
+				},
+
+				{
+					"name": "test_time",
+					"type": "time",
+					"label": "Time"
+				},
+
+				{
+					"name": "test_range",
+					"type": "range",
+					"label": "Range",
+					"default": 1,
+					"min": 1,
+					"max": 100,
+					"step": 5
+				},
+
+				{
+					"name": "test_textarea",
+					"type": "textarea",
+					"label": "Textarea"
+				},
+
+				{
+					"name": "test_radio",
+					"type": "radio",
+					"label": "Radio"
+				}
+
+			]
+		}
+
+
+
+
 		
 ]}

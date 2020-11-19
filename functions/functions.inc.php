@@ -9,11 +9,11 @@
 
 
 /*
-Modulausgabe:
+Auslesen von Settings in der Modulausgabe:
 
 $s = new blockSettings();
 print_r( $s->getSettings(REX_SLICE_ID) );					//gibt alle Settings als Array aus
-echo $s->getSettings(REX_SLICE_ID, 'feldname');				//gibt einzelnen Setting aus
+echo $s->getSettings(REX_SLICE_ID, 'feldname');				//gibt Setting-Wert des Feldes 'feldname' aus
 */
 
 
@@ -44,58 +44,48 @@ class blockSettings
 	//Speichern/Löschen der Settings
 	public function saveSettings($ep)
 	{	//Variablen deklarieren
-		$mypage = "blocksettings";
-	
 		$slice_ep = 	@$ep->getName();
-		$slice_id = 	@$ep->getParam('slice_id');
-		$slice_mid = 	@$ep->getParam('module_id');
-		$slice_aid = 	@$ep->getParam('article_id');
+		$slice_id = 	intval(@$ep->getParam('slice_id'));
+		//$slice_mid = 	intval(@$ep->getParam('module_id'));
+		//$slice_aid = 	intval(@$ep->getParam('article_id'));
 		
-		$vars = $_REQUEST['blockSettings'];
+		$vars = @$_REQUEST['blockSettings'];
+		
 
-
-		//echo "<pre>"; print_r($vars); echo "</pre>";
-		
-		
-		//Prüfen, ob bestehender Slice schon einen DB-Eintrag hat (wenn nicht, dann Aktion für ADDED ausführen)
-		$db = rex_sql::factory();
-		$db->setQuery("SELECT id FROM ".rex::getTable('1604_blocksettings_slice')." WHERE id_slice = '".$slice_id."' LIMIT 0,1"); 
-		$slice_ep = ($slice_ep == 'SLICE_UPDATED' && $db->getRows() <= 0) ? 'SLICE_ADDED' : $slice_ep;
-		
-		
-		if ($slice_ep == 'SLICE_ADDED'):
-			//Aktion beim hinzufügen (neuer Slice)
-			//Settings in DB speichern
+		if ($slice_id > 0 && is_array($vars) && !empty($vars)):
+			//Settings im Slice speichern
 			$db = rex_sql::factory();
-			$db->setTable(rex::getTable('1604_blocksettings_slice'));
+			$db->setTable(rex::getTable('article_slice'));
 		
-			$db->setValue("id_slice", $slice_id);
-			$db->setValue("settings", serialize($vars) );
+			$db->setValue("bs_settings", serialize($vars) );
 
-			$dbreturn = $db->insert();			
-			
-		elseif ($slice_ep == 'SLICE_UPDATED'):
-			//Aktion beim editieren (bestehender Slice)
-			//Settings in DB speichern
-			$db = rex_sql::factory();
-			$db->setTable(rex::getTable('1604_blocksettings_slice'));
+			$db->setWhere("id = '".$slice_id."'");
+			$dbreturn = $db->update();
+		endif;
+	}
+
+
+	//Kopieren der Settings bei bloecks-Addon
+	public function copySettings($ep)
+	{	//Variablen deklarieren
+		$slice_ep = 	@$ep->getName();
+		$slice_old = 	@$ep->getParam('source_slice_id')->getId();
+		$slice_new = 	@$ep->getParam('inserted_slice_id');
 		
-			$db->setValue("settings", serialize($vars) );
 
-			$db->setWhere("id_slice = '".$slice_id."'");
-			$dbreturn = $db->update();			
+		if ($slice_old > 0 && $slice_new > 0):
+			//Settings in neuen Slice kopieren
+			$s = $this->getSettings($slice_old);							//Settings aus altem Slice holen
 			
-		elseif ($slice_ep == 'SLICE_DELETED'):
-			//Aktion beim löschen (bestehender Slice)
-			//Settings aus DB löschen
-			$db = rex_sql::factory();
-			$db->setTable(rex::getTable('1604_blocksettings_slice'));
-
-			$db->setWhere("id_slice = '".$slice_id."'");
-			$dbreturn = $db->delete();			
+			if (!empty($s)):
+				$db = rex_sql::factory();
+				$db->setTable(rex::getTable('article_slice'));
 			
-		else:
-			//Meldung ggf. ausgeben, wenn keine gültige Aktion vorliegt
+				$db->setValue("bs_settings", serialize($s) );
+	
+				$db->setWhere("id = '".$slice_new."'");
+				$dbreturn = $db->update();
+			endif;
 		endif;
 	}
 	
@@ -108,9 +98,9 @@ class blockSettings
 		
 		if ($sid > 0):
 			$db = rex_sql::factory();
-			$db->setQuery("SELECT settings FROM ".rex::getTable('1604_blocksettings_slice')." WHERE id_slice = '".$sid."' LIMIT 0,1"); 
+			$db->setQuery("SELECT bs_settings FROM ".rex::getTable('article_slice')." WHERE id = '".$sid."' LIMIT 0,1"); 
 	
-			$val = ($db->getRows() > 0) ? $db->getValue('settings') : '';
+			$val = ($db->getRows() > 0) ? $db->getValue('bs_settings') : '';
 			$val = unserialize($val);
 			
 			if (is_array($val) && !empty($field)):
@@ -177,9 +167,11 @@ class blockSettings
 				if ( $db->getValue('whitelistmode') == 'manual' && !preg_match("/#".$this->mid."#/i", $db->getValue('whitelist')) ) { return; }
 				
 				//Definition aufbereiten
+				$tabnav = $tabcnt = "";
+				
 				$json = $db->getValue('settings');
 				$settings = (!empty($json)) ? json_decode($json, TRUE) : '';
-				$settings = (array_key_exists('settings', $settings)) ? @$settings['settings'] : array();
+				$settings = (is_array($settings) && array_key_exists('settings', $settings)) ? @$settings['settings'] : array();
 				
 				//Definition auswerten			
 				if (count($settings) > 0):
@@ -188,7 +180,6 @@ class blockSettings
 					
 					
 					//Tab-Nav erstellen
-					$tabnav = "";
 					if ($tabs > 1):
 						$tabnav .= '<ul class="nav nav-tabs">';
 							for ($i=0; $i<$tabs; $i++):
@@ -199,7 +190,6 @@ class blockSettings
 					
 				
 					//Formfelder erstellen
-					$tabcnt = "";
 					$tabcnt .= '<div class="tab-content">';
 					
 					for ($i=0; $i<$tabs; $i++):
@@ -234,12 +224,17 @@ class blockSettings
 	
 				
 				//Ausgabe
+				$lang = rex_addon::get('blocksettings');
+				$lang_toggler 		= $lang->i18n('a1604_mod_toggler');
+				$lang_toggler_info 	= $lang->i18n('a1604_mod_toggler_info');
+				
 $formcode = <<<EOD
 <div class="fmBlockSettings">
 	<div class="fmBS-inner">
-		<div class="fmBS-toggler" id="fmBS-toggler" title="Zusätzliche Einstellungen dieses Blockes">
-			<div><i class="rex-icon fa-cog"></i><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-			Block-Einstellungen
+		<div class="fmBS-toggler" id="fmBS-toggler" title="$lang_toggler_info">
+			<div class="fmBS-icon-left"><i class="rex-icon fa-cog"></i></div>
+			$lang_toggler
+			<div class="fmBS-icon-right"><i class="rex-icon fa-angle-down"></i></div>
 		</div>
 		
 		<div class="fmBS-content" id="fmBS-content">
@@ -248,7 +243,7 @@ $formcode = <<<EOD
 		</div>
 	</div>
 </div>
-<script>$(function(){ $('#fmBS-toggler').click(function(){ $('#fmBS-content').slideToggle('fast'); }); });</script>
+/*<script>$(function(){ $('#fmBS-toggler').click(function(){ $(this).find('.fmBS-icon-right i').toggleClass('fa-angle-down').toggleClass('fa-angle-up'); $('#fmBS-content').slideToggle('fast'); }); });</script>*/
 EOD;
 	
 				//Form in Modulcontent einbetten/zurückgeben
@@ -286,28 +281,32 @@ EOD;
 						$width = (isset($field['width'])) ? intval($field['width']) : 0;
 							$width = ($width > 0) ? 'style="width:'.$width.'px"' : '';
 						
-						$value = ($this->mode == 'add') ? '' : $this->getSettings($this->sid, $field['name']);
+						$value = ($this->mode == 'add') ? '' : $this->getSettings($this->sid, $field['name']);				//gespeicherten Wert für Value einladen (hat nichts mit den möglichen Values des Feldes zu tun)
+							$value = (empty($value)) ? @$field['default'] : $value;											//falls nichts gespeichert, dann default-Wert nutzen
 						
-						/*
-						echo "<br>>>sid: ".$this->sid;						
-						echo "<br>".$field['name'];
-						echo "<br>".$field['type'];
-						echo "<br>".$value;
-						*/
+						
+						//echo "<br>SliceID: ".$this->sid;						
+						//echo "<br>Name: ".$field['name'];
+						//echo "<br>Type: ".$field['type'];
+						//echo "<br>Val: ".$value;
+						
 
 						switch ($field['type']):
-							case 'text':			$tabcnt .= $this->getField_text($field, $width, $value);			break;
-							case 'color':			$tabcnt .= $this->getField_color($field, $width, $value);			break;
-							case 'number':			$tabcnt .= $this->getField_number($field, $width, $value);			break;
-							case 'range':			$tabcnt .= $this->getField_range($field, $width, $value);			break;
-							case 'textarea':		$tabcnt .= $this->getField_textarea($field, $width, $value);		break;
-							case 'select':			$tabcnt .= $this->getField_select($field, $width, $value);			break;
-							case 'checkbox':		$tabcnt .= $this->getField_checkbox($field, $width, $value);		break;
-							case 'radio':			$tabcnt .= $this->getField_radio($field, $width, $value);			break;
-							case 'rexmedia':		$tabcnt .= $this->getField_rexmedia($field, $width, $value);		break;
-							case 'rexlink':			$tabcnt .= $this->getField_rexlink($field, $width, $value);			break;
-							case 'rexmedialist':	$tabcnt .= $this->getField_rexmedialist($field, $width, $value);	break;
-							case 'rexlinklist':		$tabcnt .= $this->getField_rexlinklist($field, $width, $value);		break;
+							case 'text':			$tabcnt .= $this->getField_text($field, $width, $value);				break;
+							case 'color':			$tabcnt .= $this->getField_color($field, $width, $value);				break;
+							case 'number':			$tabcnt .= $this->getField_number($field, $width, $value);				break;
+							case 'range':			$tabcnt .= $this->getField_range($field, $width, $value);				break;
+							case 'textarea':		$tabcnt .= $this->getField_textarea($field, $width, $value);			break;
+							case 'select':			$tabcnt .= $this->getField_select($field, $width, $value);				break;
+							case 'checkbox':		$tabcnt .= $this->getField_checkbox($field, $width, $value);			break;
+							case 'radio':			$tabcnt .= $this->getField_radio($field, $width, $value);				break;
+							case 'rexmedia':		$tabcnt .= $this->getField_rexmedia($field, $width, $value);			break;
+							case 'rexlink':			$tabcnt .= $this->getField_rexlink($field, $width, $value);				break;
+							case 'rexmedialist':	$tabcnt .= $this->getField_rexmedialist($field, $width, $value);		break;
+							case 'rexlinklist':		$tabcnt .= $this->getField_rexlinklist($field, $width, $value);			break;
+							case 'date':			$tabcnt .= $this->getField_datetime($field, $width, $value, 'date');	break;
+							case 'time':			$tabcnt .= $this->getField_datetime($field, $width, $value, 'time');	break;
+							case 'datetime':		$tabcnt .= $this->getField_datetime($field, $width, $value);			break;
 						endswitch;
 					
 					$tabcnt .= '</dd></dl>';
@@ -320,74 +319,127 @@ EOD;
 	}
 	
 	
+	function getInputGroup($field, $input)
+	{	$cnt = "";
+	
+		if (is_array($field) && !empty($input)):
+			$pre = htmlspecialchars(@$field['prefix']);
+			$suf = htmlspecialchars(@$field['suffix']);
+		
+			$cnt .= (!empty($pre) || !empty($suf)) ? '<div class="input-group">' : '';
+			$cnt .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
+				$cnt .= $input;
+			$cnt .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
+			$cnt .= (!empty($pre) || !empty($suf)) ? '</div>' : '';
+		else:
+			$cnt .= $input;
+		endif;
+		
+		return $cnt;
+	}
+	
+	
+	
+	// ************************************
+	// Definition der Formularfeldausgaben
+	// ************************************
+	
 	function getField_text($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';	
+			
+			$input = '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_color($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '<input type="color" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" title="'.$ph.'" maxlength="'.@$field['maxlength'].'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' />';
+			
+			$input = '<input type="color" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" title="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' />';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_number($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 		$v = intval($v);
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '<input type="number" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.$field['maxlength'].'" min="'.$field['min'].'" max="'.$field['max'].'" class="form-control" '.$w.' />';	
+			$min = (isset($field['min'])) ? 'min="'.$field['min'].'"' : '';
+			$max = (isset($field['max'])) ? 'max="'.$field['max'].'"' : '';
+			
+			$input = '<input type="number" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" '.$min.' '.$max.' class="form-control" '.$w.' />';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_range($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '';	
+			$min = (isset($field['min'])) ? 'min="'.$field['min'].'"' : '';
+			$max = (isset($field['max'])) ? 'max="'.$field['max'].'"' : '';
+			$step = (isset($field['step'])) ? 'step="'.$field['step'].'"' : '';
+			$pre = htmlspecialchars(@$field['prefix']);
+			$suf = htmlspecialchars(@$field['suffix']);
+			
+			$input = '<div class="input-group rex-range-input-group">';
+				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
+				
+				$input .= '<input type="range" id="fmBS_'.$name.'_range" value="'.$v.'" '.$min.' '.$max.' '.$step.' class="form-control" '.$w.' />';
+				$input .= '<input type="hidden" name="blockSettings['.$name.']" id="fmBS_'.$name.'_value" value="'.$v.'" />';
+				$input .= '<span class="input-group-addon fmBS-rangetext" id="fmBS_'.$name.'_text">'.$v.'</span>';
+				
+				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
+			$input .= '</div>';
+			
+			$input .= '<script>$(function(){ $("#fmBS_'.$name.'_range").on("input change", function(){ $("#fmBS_'.$name.'_value").val(this.value); $("#fmBS_'.$name.'_text").text(this.value); }); });</script>';
+			
+			$cnt .= $input;
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_textarea($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '';	
+			
+			$input = '<textarea name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control" '.$w.' />'.$v.'</textarea>';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_select($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
@@ -396,53 +448,59 @@ EOD;
 			
 			$options = "";
 				foreach ($field['value'] as $key=>$val):
-					$v = (!empty($v)) ? $v : @$field['default'];
 					$sel = ($v == $key) ? 'selected="selected"' : '';
 					$options .= '<option value="'.$key.'" '.$sel.'>'.$val.'</option>';
 				endforeach;
 
-			$tabcnt .= '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control">'.$options.'</select>';
+			$input = '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control">'.$options.'</select>';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_checkbox($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '<div class="checkbox"><label for="blockSettings['.$name.']"><input name="fmBS_'.$name.'" type="checkbox" id="fmBS_'.$field['name'].'" value="1" >'.$ph.'</label></div>';	
+			
+			// HIER FEHLT NOCH DAS AUSWERTEN DES VALUE -> SETZEN DES CHECKED STATUS
+			
+			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" >'.$ph.'</label></div>';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_radio($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '';	
+			
+			$input = '';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_rexmedia($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 				$name = 'blockSettings['.$name.']';
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
-$tabcnt .= <<<EOD
+$input = <<<EOD
 <div class="rex-js-widget rex-js-widget-media">
 	<div class="input-group">
 		<input class="form-control" type="text" name="$name" value="" id="$name" readonly="">
@@ -455,21 +513,22 @@ $tabcnt .= <<<EOD
 	<div class="rex-js-media-preview"></div>
 </div>
 EOD;
-			
+
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_rexlink($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
-$tabcnt .= <<<EOD
+$input = <<<EOD
 <div class="input-group">
 	<input class="form-control" type="text" name="REX_LINK_NAME[1]" value="" id="REX_LINK_1_NAME" readonly="">
 	<input type="hidden" name="$name" id="$name" value="0">
@@ -479,36 +538,78 @@ $tabcnt .= <<<EOD
 	</span>
 </div>			
 EOD;
-			
+
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_rexmedialist($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '';
+			
+			$input = '';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
 	}
 	
 	
 	function getField_rexlinklist($field, $w, $v)
-	{	$tabcnt = "";
+	{	$cnt = "";
 	
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
-			$tabcnt .= '';
+			
+			$input = '';
+			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
-		return $tabcnt;
+		return $cnt;
+	}
+	
+
+	function getField_datetime($field, $w, $v, $caltype = '')
+	{	$cnt = "";
+	
+		if (isset($field['name']) && !empty($field['name'])):
+			$name = $this->cleanName($field['name']);
+			$ph = htmlspecialchars(@$field['placeholder']);
+			$pre = htmlspecialchars(@$field['prefix']);
+			$suf = htmlspecialchars(@$field['suffix']);
+			
+			$v = (preg_match("/[0-9]+/i", $v)) ? date("d.m.Y H:i", $v) : "";
+			
+			$lang = rex_addon::get('blocksettings');
+			$lang_calendar = $lang->i18n('a1604_mod_calendar');
+			
+			$picker_time = $picker_date = 'true';
+			switch ($caltype):
+				case 'time':	$picker_date = 'false';		break;
+				case 'date':	$picker_time = 'false';		break;
+			endswitch;
+			
+			$input = '<div class="input-group">';
+				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
+				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" class="form-control" data-datepicker="'.$picker_date.'" data-datepicker-time="'.$picker_time.'" data-datepicker-mask="true" />';
+				$input .= '<span class="input-group-btn"><a class="btn btn-popup" onclick="return false;" title="'.$lang_calendar.'" data-datepicker-dst="fmBS_'.$name.'"><i class="rex-icon fa-calendar"></i></a></span>';
+				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
+			$input .= '</div>';
+			
+			$cnt .= $input;
+		endif;
+	
+		return $cnt;
+		
+		
+		// KALENDER-SCRIPT & JQUERY MUSS NOCH EINGEBUDNEN WERDEN !!!
 	}
 	
 	
