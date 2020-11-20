@@ -44,4 +44,9 @@ rex_extension::register( 'SLICE_INSERTED', function($ep){
 	$o->copySettings($ep);
 });
 
+
+
+// Asstes im Backend einbinden (z.B. style.css) - es wird eine Versionsangabe angehängt, damit nach einem neuen Release des Addons die Datei nicht aus dem Browsercache verwendet wird
+rex_view::addCssFile($this->getAssetsUrl('datepicker/jquery.datetimepicker.min.css?v=' . $this->getVersion()));
+rex_view::addJsFile($this->getAssetsUrl('datepicker/jquery.datetimepicker.full.min.js?v=' . $this->getVersion()));
 ?>

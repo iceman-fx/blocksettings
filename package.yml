@@ -11,6 +11,7 @@ page:
     icon: rex-icon fa-database
     subpages:
         default: { title: 'translate:a1604_default' }
+        config: { title: 'translate:a1604_config', icon: rex-icon fa-wrench }	#config-Seite mit separaten Rechten
         help: { title: 'translate:a1604_help', icon: rex-icon fa-question-circle, itemclass: pull-right }
 
 requires:

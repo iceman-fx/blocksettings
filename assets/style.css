@@ -16,7 +16,7 @@
 .fmBlockSettings .tab-content { padding: 20px 20px 20px; border: 1px solid #9ca5b2; border-top: none; background: #FFF; }
 
 .fmBlockSettings .fmBS-content dl { margin: 15px 0px 0px; }
-	.fmBlockSettings .fmBS-content dl:first-child { margin-top: 0px; }
+	.fmBlockSettings .fmBS-content dl:first-child, .fmBlockSettings .fmBS-content dl.radio { margin-top: 0px; }
 .fmBlockSettings .fmBS-content dd > select { margin: 0px !important; }
 
 .fmBlockSettings .fmBS-fieldset > span { font-weight: bold; display: block; margin-top: 25px; margin-bottom: -5px; }
@@ -30,4 +30,4 @@
 .fmBlockSettings input[type=number] { padding-right: 1px; }
 .fmBlockSettings input[type=color] { padding-top: 3px; padding-bottom: 3px; }
 .fmBlockSettings textarea { height: auto; }
-.fmBlockSettings .fmBS-rangetext { min-width: 80px; }
+.fmBlockSettings .fmBS-rangetext { min-width: 100px; }

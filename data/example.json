@@ -222,11 +222,19 @@
 					"type": "date",
 					"label": "Date"
 				},
-
+				
 				{
-					"name": "test_time",
-					"type": "time",
-					"label": "Time"
+					"name": "test_date_stamp",
+					"type": "date",
+					"label": "Date als Stamp",
+					"return": "time"
+				},
+				
+				{
+					"name": "test_datetime_stamp",
+					"type": "datetime",
+					"label": "Datetime als Stamp",
+					"return": "time"
 				},
 
 				{
@@ -236,7 +244,7 @@
 					"default": 1,
 					"min": 1,
 					"max": 100,
-					"step": 5
+					"step": 1
 				},
 
 				{
@@ -246,10 +254,44 @@
 				},
 
 				{
+					"name": "test_textarea_editor",
+					"type": "textarea",
+					"label": "Textarea mit Editor",
+					"editor": true
+				},
+
+				{
 					"name": "test_radio",
 					"type": "radio",
-					"label": "Radio"
+					"label": "Radio",
+					"value": {
+						"all": "alle",
+						"single": "einer",
+						"none": "keine"
+					},
+					"default": "single"
+				},
+				
+				{
+					"name": "text_rexlink",
+					"type": "rexlink",
+					"label": "Rex-Link"
+				},
+				
+				{
+					"name": "text_rexlinklist",
+					"type": "rexlinklist",
+					"label": "Rex-Linkliste"
+				},
+				
+				{
+					"name": "text_rexmedialist",
+					"type": "rexmedialist",
+					"label": "Rex-Medialiste",
+					"mediatypes": "gif,jpg,jpeg,png"
 				}
+
+
 
 			]
 		}

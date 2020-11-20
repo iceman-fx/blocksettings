@@ -114,7 +114,7 @@ class blockSettings
 
 	//Aufbereitung Feldname
 	function cleanName($name = "")
-	{	$name = str_replace(array("'", '"', "[", "]"), "_", $name);
+	{	$name = str_replace(array("'", '"', "[", "]", "|"), "_", $name);
 		
 		return $name;
 	}
@@ -305,7 +305,6 @@ EOD;
 							case 'rexmedialist':	$tabcnt .= $this->getField_rexmedialist($field, $width, $value);		break;
 							case 'rexlinklist':		$tabcnt .= $this->getField_rexlinklist($field, $width, $value);			break;
 							case 'date':			$tabcnt .= $this->getField_datetime($field, $width, $value, 'date');	break;
-							case 'time':			$tabcnt .= $this->getField_datetime($field, $width, $value, 'time');	break;
 							case 'datetime':		$tabcnt .= $this->getField_datetime($field, $width, $value);			break;
 						endswitch;
 					
@@ -430,7 +429,33 @@ EOD;
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
-			$input = '<textarea name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control" '.$w.' />'.$v.'</textarea>';
+			$config = rex_addon::get('blocksettings')->getConfig('config');
+			$h = $edc = $edh = $edp = "";
+				if (!empty($config['editor']) && @$field['editor'] === true):
+					//Editor
+					$ed = $config['editor'];
+						$edc = 	($ed == 'cke5') 		? 'cke5-editor' : $edc;
+						$edc = 	($ed == 'ckeditor') 	? 'ckeditor' : $edc;
+						$edc = 	($ed == 'tinymce4') 	? 'tinyMCEEditor' : $edc;
+						$edc = 	($ed == 'redactor') 	? 'redactor-editor' : $edc;
+						$edc = 	($ed == 'redactor2') 	? 'redactorEditor2' : $edc;
+					
+					//Editorprofile
+					$tmp = $config['editor_profile'];
+						$edp = 	($ed == 'cke5') 		? 'data-profile="'.$tmp.'"' : $edp;
+						$edp = 	($ed == 'ckeditor') 	? 'data-ckeditor-profile="'.$tmp.'"' : $edp;
+						$edp = 	($ed == 'tinymce4') 	? '' : $edp;
+						$edc .= ($ed == 'redactor') ? '--'.$tmp : '';
+						$edc .= ($ed == 'redactor2')? '-'.$tmp : '';
+					
+					//Editorhöhe
+					$tmp = intval($config['editor_height']);
+						$h = 	($tmp > 0) ? 'style="height: '.$tmp.'px"' : '';
+						$edh = 	($ed == 'cke5' && $tmp > 0) 		? 'data-min-height="'.$tmp.'"' : $edh;
+						$edh = 	($ed == 'ckeditor' && $tmp > 0) 	? 'data-ckeditor-height="'.$tmp.'"' : $edh;
+				endif;			
+			
+			$input = '<textarea name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control '.$edc.'" '.$edp.' '.$edh.' '.$w.' '.$h.' />'.$v.'</textarea>';
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -447,11 +472,15 @@ EOD;
 			$multiple = (@$field['multiple'] === true) ? 'size="4" multiple' : 'size="1"';
 			
 			$options = "";
-				foreach ($field['value'] as $key=>$val):
-					$sel = ($v == $key) ? 'selected="selected"' : '';
-					$options .= '<option value="'.$key.'" '.$sel.'>'.$val.'</option>';
-				endforeach;
-
+				if (is_array($field['value'])):
+					foreach ($field['value'] as $key=>$val):
+						$sel = ($v == $key) ? 'selected="selected"' : '';
+						$options .= '<option value="'.$key.'" '.$sel.'>'.$val.'</option>';
+					endforeach;
+				else:
+					return;
+				endif;
+				
 			$input = '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control">'.$options.'</select>';
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
@@ -467,9 +496,8 @@ EOD;
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
-			// HIER FEHLT NOCH DAS AUSWERTEN DES VALUE -> SETZEN DES CHECKED STATUS
-			
-			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" >'.$ph.'</label></div>';
+			//$sel = ($v == $key) ? 'checked="checked"' : '';
+			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" />'.$ph.'</label></div>';
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -483,8 +511,20 @@ EOD;
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
+
+			$input = ""; $i = 0;
+				if (is_array($field['value'])):
+					foreach ($field['value'] as $key=>$val):
+						$sel = ($v == $key) ? 'checked="checked"' : '';
+						$input .= '<dl class="rex-form-group form-group radio"><dd>';
+						$input .= '<div class="radio"><label for="fmBS_'.$name.'-'.$i.'"><input type="radio" name="blockSettings['.$name.']" id="fmBS_'.$name.'-'.$i.'" value="'.$key.'" '.$sel.' />'.$val.'</label></div>';
+						$input .= '</dd></dl>';
+						$i++;
+					endforeach;
+				else:
+					return;
+				endif;
 			
-			$input = '';
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -590,15 +630,11 @@ EOD;
 			$lang = rex_addon::get('blocksettings');
 			$lang_calendar = $lang->i18n('a1604_mod_calendar');
 			
-			$picker_time = $picker_date = 'true';
-			switch ($caltype):
-				case 'time':	$picker_date = 'false';		break;
-				case 'date':	$picker_time = 'false';		break;
-			endswitch;
+			$picker_time = ($caltype != 'date') ? 'true' : 'false';
 			
-			$input = '<div class="input-group">';
+			$input = '<div class="input-group fmBS_datepicker-widget">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
-				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" class="form-control" data-datepicker="'.$picker_date.'" data-datepicker-time="'.$picker_time.'" data-datepicker-mask="true" />';
+				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" class="form-control" data-datepicker-time="'.$picker_time.'" data-datepicker-mask="true" />';
 				$input .= '<span class="input-group-btn"><a class="btn btn-popup" onclick="return false;" title="'.$lang_calendar.'" data-datepicker-dst="fmBS_'.$name.'"><i class="rex-icon fa-calendar"></i></a></span>';
 				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
 			$input .= '</div>';

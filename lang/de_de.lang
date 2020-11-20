@@ -11,6 +11,8 @@ a1604_head_config = Einstellungen
 a1604_head_admin = Administrative Einstellungen
 a1604_head_help = Onlinehilfe
 
+a1604_subheader_config1 = Einstellungen HTML-Editor
+
 a1604_text1 = 
 
 
@@ -32,6 +34,13 @@ a1604_bas_whitelist = Auswahl Modulblöcke
 a1604_bas_list_name = Titel / Bezeichnung
 a1604_bas_list_date = Datum
 a1604_bas_list_options = Anzeigeoptionen
+
+
+# Seite: Einstellungen
+a1604_config_editor = Auswahl HTML-Editor
+a1604_config_editor_height = Höhe des Editors
+a1604_config_editor_profile = Profil des Editors
+a1604_config_editor_notfound = - kein Editor-Addon gefunden -
 
 
 # Modulausgabe

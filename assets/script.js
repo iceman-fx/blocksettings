@@ -1,4 +1,4 @@
-// moduleSettings rexLinkMap/Media-Fork
+// blockSettings
 // v1.0
 
 
@@ -23,6 +23,28 @@ $(function(){
 				}
 			});
 		}
+	});
+	
+	
+	//Datepicker-Einbindung
+	$.datetimepicker.setLocale('de');
+	$('.fmBS_datepicker-widget input').each(function(){
+		lazy = ($(this).attr('data-datepicker-lazy') == 'true' ? true : false);
+		mask = ($(this).attr('data-datepicker-mask') == 'true' ? true : false);
+		time = ($(this).attr('data-datepicker-time') == 'true' ? true : false);
+		format = (time ? 'd.m.Y H:i' : 'd.m.Y');
+		now = new Date();
+			start = 2000;
+			end = now.getFullYear() + 10;
+		$(this).datetimepicker({
+			format: format, formatDate: 'd.m.Y', formatTime: 'H:i', yearStart: start, yearEnd: end, dayOfWeekStart: 1,
+			mask: mask, lazyInit: lazy, week: true, timepicker: time, step: 15
+		});
+	});
+	
+	$('.fmBS_datepicker-widget a').click(function(){
+		dst = $(this).attr('data-datepicker-dst');
+		if (dst != "" && dst != 'undefined') { $('#'+dst).datetimepicker('show'); }
 	});	
 	
 });

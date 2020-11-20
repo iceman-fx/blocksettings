@@ -13,13 +13,14 @@ $error = "";
 
 
 //Vorgaben vornehmen
-/*
 if (!$this->hasConfig()):
 	$this->setConfig('config', [
-		'xxx'			=> '',
+		'editor'			=> '',
+		'editor_height'		=> '200',
+		'editor_profile'	=> 'default',
 	]);
 endif;
-*/
+
 
 
 //Datenbank-Einträge vornehmen

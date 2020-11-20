@@ -19,10 +19,7 @@ $subpage = rex_be_controller::getCurrentPagePart(2);		//Subpages werden aus page
 	$subpage = (!empty($tmp)) ? $tmp : $subpage;
 $func = rex_request('func', 'string');
 
-/*
 $config = $this->getConfig('config');
-	$config = aFM_maskArray($config);
-*/
 
 
 //Userrechte prüfen
@@ -152,6 +149,10 @@ function toggleContent(dst, src)
 <?php
 //Unterseite einbinden
 switch($subpage):
+	case "config":				//Einstellungen
+								require_once("config.inc.php");
+								break;
+
 	case "help":				//Hilfe
 								require_once("help.inc.php");
 								break;
