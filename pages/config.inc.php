@@ -49,7 +49,7 @@ endif;
                 <dd>
                     <select name="editor" size="1" class="form-control" <?php echo $dis; ?>>
                         <?php
-						$eds = array("CKEditor 5"=>"cke5", "CKEditor 4"=>"ckeditor", "TinyMCE 4"=>"tinymce4", "Redactor"=>"redactor", "Redactor 2"=>"redactor2");
+						$eds = array("CKEditor 4"=>"ckeditor", "CKEditor 5"=>"cke5", "TinyMCE 4"=>"tinymce4", "TinyMCE 5"=>"tinymce5");				//, "Redactor"=>"redactor", "Redactor 2"=>"redactor2"
 						
 						$founded = 0;
 						foreach ($eds as $key=>$val):

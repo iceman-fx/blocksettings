@@ -24,11 +24,13 @@ rex_view::addCssFile($this->getAssetsUrl('style.css'));
 rex_view::addJsFile($this->getAssetsUrl('script.js'));
 
 
-//SettingForm bei Slice-anzeigen einbinden
+//SettingForm bei Slice-anzeigen einbinden								--> Einbindung per SLICE_SHOW nicht sauber möglich, da SLICE_SHOW nicht nur auf den aktuellen Slice gilt, sondern auf alle bestehenden Slices = Mehrfacheinbindung
+/*
 rex_extension::register( 'SLICE_SHOW', function($ep){
 	$o = new blockSettings();
 	return $o->appendForm($ep);
 });
+*/
 
 
 //SettingForm-Aktionen

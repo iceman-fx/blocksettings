@@ -22,22 +22,6 @@ class blockSettings
 	public function __construct()
 	{	//JSON-Datei holen
 		$this->addon 	= rex_addon::get('blocksettings');
-		
-		/*
-        $this->jsonpath	= $this->addon->getDataPath('settings.json');
-		$this->json = @file_get_contents($this->jsonpath);
-			if (empty($this->json)):
-				$this->jsonpath	= $this->addon->getPath('data/example.json');
-				$this->json = @file_get_contents($this->jsonpath);
-			endif;
-
-		$db = rex_sql::factory();
-		$db->setQuery("SELECT settings FROM ".rex::getTable('1604_blocksettings')." WHERE id = '1' AND status = 'checked' LIMIT 0,1"); 
-		
-		$this->json = ($db->getRows() > 0) ? $db->getValue('settings') : '';
-		$this->settings = (!empty($this->json)) ? json_decode($this->json, TRUE) : '';
-		$this->settings = (array_key_exists('settings', $this->settings)) ? @$this->settings['settings'] : array();
-		*/
 	}
 
 
@@ -90,8 +74,8 @@ class blockSettings
 	}
 	
 	
-	//Ausgabe der Settings
-	public function getSettings($sid = 0, $field = "")
+	//Auslesen der Settings
+	public function getSettings($sid = 0, $field = "", $convert = "")
 	{	$sid = intval($sid);
 		$field = $this->cleanName($field);
 		$val = "";
@@ -105,14 +89,47 @@ class blockSettings
 			
 			if (is_array($val) && !empty($field)):
 				$val = @$val[$field];
+				
+				//Konvertierungen
+				switch ($convert):
+					case "int":		$val = intval($val);
+									break;
+									
+					case "time":	$val = (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4}$/i", $val)) ? $val.' 00:00' : $val;
+									$val = (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $val)) ? intval(@date_format(date_create_from_format('d.m.Y H:i', $val), 'U')) : 0;
+									break;
+					
+					
+					//inoffizielle Konnvertierung
+					case "timeend":	$val = (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4}$/i", $val)) ? $val.' 23:59' : $val;
+									$val = (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $val)) ? intval(@date_format(date_create_from_format('d.m.Y H:i', $val), 'U')) : 0;
+									break;
+				endswitch;
 			endif;
 		endif;
 		
 		return $val;
 	}
+	
+	
+	//Onlinestatus prüfen (benötigt mind. 1 Feld)
+	public function getOnlinestatus($sid = 0, $field_from = "", $field_to)
+	{	$sid = intval($sid);
+		$return = false;
+		
+		if ($sid > 0 && (!empty($field_from) || !empty($field_to))):
+			$field_from = $this->getSettings($sid, $field_from, 'time');
+			$field_to = $this->getSettings($sid, $field_to, 'timeend');
+			$now = time();
+		
+			$return = (($field_from == 0 || $now >= $field_from) && ($field_to == 0 || $now <= $field_to)) ? true : false;
+		endif;
+		
+		return $return;
+	}
 
 
-	//Aufbereitung Feldname
+	//Aufbereitung Feld-Name
 	function cleanName($name = "")
 	{	$name = str_replace(array("'", '"', "[", "]", "|"), "_", $name);
 		
@@ -130,9 +147,9 @@ class blockSettings
 		//Vorgaben einlesen
 		if ($noembed || $ep->getParam('function') == 'add' || $ep->getParam('function') == 'edit'):
 			$url = $_SERVER['REQUEST_URI'];
-			preg_match("/module_id=([0-9]+)/i", $url, $mid);														//Modul-ID des neuen Blockes aus URL holen
-			preg_match("/slice_id=([0-9]+)/i", $url, $sid);															//Slice-ID des neuen Blockes aus URL holen
-			preg_match("/function=([a-z]+)/i", $url, $mode);														//Modus (add/edit) des neuen Blockes aus URL holen
+			preg_match("/module_id=([0-9]+)/i", $url, $mid);														//Modul-ID des Blockes aus URL holen
+			preg_match("/slice_id=([0-9]+)/i", $url, $sid);															//Slice-ID des Blockes aus URL holen
+			preg_match("/function=([a-z]+)/i", $url, $mode);														//Modus (add/edit) des Blockes aus URL holen
 		
 			if ($noembed):
 				$mid = @intval($mid[1]);																			//Modul-ID setzen aus URL
@@ -243,7 +260,7 @@ $formcode = <<<EOD
 		</div>
 	</div>
 </div>
-/*<script>$(function(){ $('#fmBS-toggler').click(function(){ $(this).find('.fmBS-icon-right i').toggleClass('fa-angle-down').toggleClass('fa-angle-up'); $('#fmBS-content').slideToggle('fast'); }); });</script>*/
+<script>$(function(){ $('#fmBS-toggler').click(function(){ $(this).find('.fmBS-icon-right i').toggleClass('fa-angle-down').toggleClass('fa-angle-up'); $('#fmBS-content').slideToggle('fast'); }); });</script>
 EOD;
 	
 				//Form in Modulcontent einbetten/zurückgeben
@@ -351,6 +368,7 @@ EOD;
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
 			$input = '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';
+            
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -364,9 +382,19 @@ EOD;
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
+			$pre = htmlspecialchars(@$field['prefix']);
+			$suf = htmlspecialchars(@$field['suffix']);
 			
-			$input = '<input type="color" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" title="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' />';
-			$cnt .= $this->getInputGroup($field, $input);
+			$input = '<div class="input-group fmBS-color-input-group">';
+				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
+			
+				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' />';
+				$input .= '<span class="input-group-addon fmBS-colorinput"><input type="color" id="fmBS_'.$name.'_color" value="'.$v.'" title="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' /></span>';
+				
+				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
+			$input .= '</div>';
+
+			$cnt .= $input;
 		endif;
 	
 		return $cnt;
@@ -403,7 +431,7 @@ EOD;
 			$pre = htmlspecialchars(@$field['prefix']);
 			$suf = htmlspecialchars(@$field['suffix']);
 			
-			$input = '<div class="input-group rex-range-input-group">';
+			$input = '<div class="input-group fmBS-range-input-group">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 				
 				$input .= '<input type="range" id="fmBS_'.$name.'_range" value="'.$v.'" '.$min.' '.$max.' '.$step.' class="form-control" '.$w.' />';
@@ -412,8 +440,6 @@ EOD;
 				
 				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
 			$input .= '</div>';
-			
-			$input .= '<script>$(function(){ $("#fmBS_'.$name.'_range").on("input change", function(){ $("#fmBS_'.$name.'_value").val(this.value); $("#fmBS_'.$name.'_text").text(this.value); }); });</script>';
 			
 			$cnt .= $input;
 		endif;
@@ -430,32 +456,50 @@ EOD;
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
 			$config = rex_addon::get('blocksettings')->getConfig('config');
-			$h = $edc = $edh = $edp = "";
+			$h = $edc = $edh = $edp = $edi = "";
 				if (!empty($config['editor']) && @$field['editor'] === true):
-					//Editor
 					$ed = $config['editor'];
-						$edc = 	($ed == 'cke5') 		? 'cke5-editor' : $edc;
+					if (rex_addon::get($ed)->isAvailable()):
+					
+						//Editor
 						$edc = 	($ed == 'ckeditor') 	? 'ckeditor' : $edc;
+						$edc = 	($ed == 'cke5') 		? 'cke5-editor' : $edc;
 						$edc = 	($ed == 'tinymce4') 	? 'tinyMCEEditor' : $edc;
-						$edc = 	($ed == 'redactor') 	? 'redactor-editor' : $edc;
-						$edc = 	($ed == 'redactor2') 	? 'redactorEditor2' : $edc;
-					
-					//Editorprofile
-					$tmp = $config['editor_profile'];
-						$edp = 	($ed == 'cke5') 		? 'data-profile="'.$tmp.'"' : $edp;
-						$edp = 	($ed == 'ckeditor') 	? 'data-ckeditor-profile="'.$tmp.'"' : $edp;
-						$edp = 	($ed == 'tinymce4') 	? '' : $edp;
-						$edc .= ($ed == 'redactor') ? '--'.$tmp : '';
-						$edc .= ($ed == 'redactor2')? '-'.$tmp : '';
-					
-					//Editorhöhe
-					$tmp = intval($config['editor_height']);
-						$h = 	($tmp > 0) ? 'style="height: '.$tmp.'px"' : '';
-						$edh = 	($ed == 'cke5' && $tmp > 0) 		? 'data-min-height="'.$tmp.'"' : $edh;
-						$edh = 	($ed == 'ckeditor' && $tmp > 0) 	? 'data-ckeditor-height="'.$tmp.'"' : $edh;
+						$edc = 	($ed == 'tinymce5') 	? 'tiny5-editor' : $edc;
+						//$edc = 	($ed == 'redactor') 	? 'redactor-editor' : $edc;
+						//$edc = 	($ed == 'redactor2') 	? 'redactorEditor2' : $edc;
+						
+						//Editorprofile
+						$tmp = $config['editor_profile'];
+							$edp = 	($ed == 'ckeditor') 	? 'data-ckeditor-profile="'.$tmp.'"' : $edp;
+							$edp = 	($ed == 'cke5') 		? 'data-profile="'.$tmp.'"' : $edp;
+							$edp = 	($ed == 'tinymce4') 	? '' : $edp;
+							$edp = 	($ed == 'tinymce5') 	? 'data-profile="'.$tmp.'"' : $edp;
+							//$edc .= ($ed == 'redactor') ? '--'.$tmp : '';
+							//$edc .= ($ed == 'redactor2')? '-'.$tmp : '';
+						
+						//Editorhöhe
+						$tmp = intval($config['editor_height']);
+							$h = 	($tmp > 0) ? 'style="height: '.$tmp.'px"' : '';
+							$edh = 	($ed == 'ckeditor' && $tmp > 0) 	? 'data-ckeditor-height="'.$tmp.'"' : $edh;
+							$edh = 	($ed == 'cke5' && $tmp > 0) 		? 'data-min-height="'.$tmp.'"' : $edh;
+							
+						//Editor-Init
+						$edi = '<script>$(function(){ ';
+							$edi .= ($ed == 'ckeditor') 	? 'rex_ckeditor_init($("#fmBS_'.$name.'"));' : '';
+							$edi .= ($ed == 'cke5') 		? 'cke5_init($("#fmBS_'.$name.'"));' : '';
+							$edi .= ($ed == 'tinymce4') 	? 'tinymce4_remove($("#fmBS_'.$name.'"), false); tinymce4_init();' : '';
+							$edi .= ($ed == 'tinymce5') 	? 'tiny5_init($("#fmBS-content"));' : '';
+							//$edi .= ($ed == 'redactor') 	? 'rex_ckeditor_init($("#fmBS_'.$name.'"));' : '';
+							//$edi .= ($ed == 'redactor2') 	? 'rex_ckeditor_init($("#fmBS_'.$name.'"));' : '';
+						$edi .= ' });</script>';
+						
+					endif;
 				endif;			
 			
 			$input = '<textarea name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control '.$edc.'" '.$edp.' '.$edh.' '.$w.' '.$h.' />'.$v.'</textarea>';
+            $input .= $edi;
+            
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -473,15 +517,16 @@ EOD;
 			
 			$options = "";
 				if (is_array($field['value'])):
-					foreach ($field['value'] as $key=>$val):
-						$sel = ($v == $key) ? 'selected="selected"' : '';
-						$options .= '<option value="'.$key.'" '.$sel.'>'.$val.'</option>';
+					foreach ($field['value'] as $val=>$title):
+						$sel = ($v == $val) ? 'selected="selected"' : '';
+						$options .= '<option value="'.$val.'" '.$sel.'>'.$title.'</option>';
 					endforeach;
 				else:
 					return;
 				endif;
 				
 			$input = '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control">'.$options.'</select>';
+            
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -495,9 +540,11 @@ EOD;
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
+			$val = @$field['value'];
 			
-			//$sel = ($v == $key) ? 'checked="checked"' : '';
-			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" />'.$ph.'</label></div>';
+			$sel = ($v == $val) ? 'checked="checked"' : '';
+			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$val.'" '.$sel.' />'.$ph.'</label></div>';
+            
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -514,10 +561,10 @@ EOD;
 
 			$input = ""; $i = 0;
 				if (is_array($field['value'])):
-					foreach ($field['value'] as $key=>$val):
-						$sel = ($v == $key) ? 'checked="checked"' : '';
+					foreach ($field['value'] as $val=>$title):
+						$sel = ($v == $val) ? 'checked="checked"' : '';
 						$input .= '<dl class="rex-form-group form-group radio"><dd>';
-						$input .= '<div class="radio"><label for="fmBS_'.$name.'-'.$i.'"><input type="radio" name="blockSettings['.$name.']" id="fmBS_'.$name.'-'.$i.'" value="'.$key.'" '.$sel.' />'.$val.'</label></div>';
+						$input .= '<div class="radio"><label for="fmBS_'.$name.'-'.$i.'"><input type="radio" name="blockSettings['.$name.']" id="fmBS_'.$name.'-'.$i.'" value="'.$val.'" '.$sel.' />'.$title.'</label></div>';
 						$input .= '</dd></dl>';
 						$i++;
 					endforeach;
@@ -525,90 +572,6 @@ EOD;
 					return;
 				endif;
 			
-			$cnt .= $this->getInputGroup($field, $input);
-		endif;
-	
-		return $cnt;
-	}
-	
-	
-	function getField_rexmedia($field, $w, $v)
-	{	$cnt = "";
-	
-		if (isset($field['name']) && !empty($field['name'])):
-			$name = $this->cleanName($field['name']);
-				$name = 'blockSettings['.$name.']';
-			$ph = htmlspecialchars(@$field['placeholder']);
-			
-$input = <<<EOD
-<div class="rex-js-widget rex-js-widget-media">
-	<div class="input-group">
-		<input class="form-control" type="text" name="$name" value="" id="$name" readonly="">
-		<span class="input-group-btn">
-			<a href="#" class="btn btn-popup" onclick="fmBS_openREXMedia('$name', ''); return false;" title="Medium auswählen"><i class="rex-icon rex-icon-open-mediapool"></i></a>
-			<a href="#" class="btn btn-popup" onclick="fmBS_addREXMedia('$name', '');  return false;" title="Neues Medium hinzufügen"><i class="rex-icon rex-icon-add-media"></i></a>
-			<a href="#" class="btn btn-popup" onclick="fmBS_deleteREXMedia('$name');  return false;" title="Ausgewähltes Medium löschen"><i class="rex-icon rex-icon-delete-media"></i></a>
-		</span>
-	</div>
-	<div class="rex-js-media-preview"></div>
-</div>
-EOD;
-
-			$cnt .= $this->getInputGroup($field, $input);
-		endif;
-	
-		return $cnt;
-	}
-	
-	
-	function getField_rexlink($field, $w, $v)
-	{	$cnt = "";
-	
-		if (isset($field['name']) && !empty($field['name'])):
-			$name = $this->cleanName($field['name']);
-			$ph = htmlspecialchars(@$field['placeholder']);
-			
-$input = <<<EOD
-<div class="input-group">
-	<input class="form-control" type="text" name="REX_LINK_NAME[1]" value="" id="REX_LINK_1_NAME" readonly="">
-	<input type="hidden" name="$name" id="$name" value="0">
-	<span class="input-group-btn">
-		<a href="#" class="btn btn-popup" onclick="openLinkMap('$name', '&amp;clang=1');return false;" title="Link auswählen"><i class="rex-icon rex-icon-open-linkmap"></i></a>
-		<a href="#" class="btn btn-popup" onclick="deleteREXLink('$name');return false;" title="Ausgewählten Link löschen"><i class="rex-icon rex-icon-delete-link"></i></a>
-	</span>
-</div>			
-EOD;
-
-			$cnt .= $this->getInputGroup($field, $input);
-		endif;
-	
-		return $cnt;
-	}
-	
-	
-	function getField_rexmedialist($field, $w, $v)
-	{	$cnt = "";
-	
-		if (isset($field['name']) && !empty($field['name'])):
-			$name = $this->cleanName($field['name']);
-			$ph = htmlspecialchars(@$field['placeholder']);
-			
-			$input = '';
-			$cnt .= $this->getInputGroup($field, $input);
-		endif;
-	
-		return $cnt;
-	}
-	
-	
-	function getField_rexlinklist($field, $w, $v)
-	{	$cnt = "";
-	
-		if (isset($field['name']) && !empty($field['name'])):
-			$name = $this->cleanName($field['name']);
-			$ph = htmlspecialchars(@$field['placeholder']);
-			
-			$input = '';
 			$cnt .= $this->getInputGroup($field, $input);
 		endif;
 	
@@ -625,7 +588,8 @@ EOD;
 			$pre = htmlspecialchars(@$field['prefix']);
 			$suf = htmlspecialchars(@$field['suffix']);
 			
-			$v = (preg_match("/[0-9]+/i", $v)) ? date("d.m.Y H:i", $v) : "";
+			$v = (preg_match("/^[0-9]+$/i", $v)) ? date("d.m.Y H:i", $v) : $v;
+            $v = (preg_match("/^[0-9]+$/i", $v) && $caltype == 'date') ? date("d.m.Y", $v) : $v;
 			
 			$lang = rex_addon::get('blocksettings');
 			$lang_calendar = $lang->i18n('a1604_mod_calendar');
@@ -643,14 +607,190 @@ EOD;
 		endif;
 	
 		return $cnt;
-		
-		
-		// KALENDER-SCRIPT & JQUERY MUSS NOCH EINGEBUDNEN WERDEN !!!
 	}
 	
 	
+	//REDAXO-Buttons
+	function getField_rexmedia($field, $w, $v)
+	{	$cnt = "";
 	
+		if (isset($field['name']) && !empty($field['name'])):
+			$name = $this->cleanName($field['name']);
+				$name = 'blockSettings['.$name.']';
+			$ph = htmlspecialchars(@$field['placeholder']);
+			$id = $this->cleanName($name);
+			$mtypes = @$field['mediatypes'];
+				$mtypes = (!empty($mtypes)) ? '&args[types]='.urlencode($mtypes) : '';
+			
+			$lang 		= rex_addon::get('blocksettings');
+			$lang_btn1 	= $lang->i18n('a1604_media_select');
+			$lang_btn2 	= $lang->i18n('a1604_media_add');
+			$lang_btn3 	= $lang->i18n('a1604_media_delete');
+			$lang_btn4 	= $lang->i18n('a1604_media_preview');			
+			
+$input = <<<EOD
+<div class="rex-js-widget rex-js-widget-media">
+	<div class="input-group">
+		<input class="form-control" type="text" name="$name" value="$v" id="REX_MEDIA_$id" readonly="">
+		<span class="input-group-btn">
+			<a href="#" class="btn btn-popup" onclick="openREXMedia('$id', '$mtypes'); return false;" title="$lang_btn1"><i class="rex-icon rex-icon-open-mediapool"></i></a>
+			<a href="#" class="btn btn-popup" onclick="addREXMedia('$id', '$mtypes'); return false;" title="$lang_btn2"><i class="rex-icon rex-icon-add-media"></i></a>
+			<a href="#" class="btn btn-popup" onclick="deleteREXMedia('$id'); return false;" title="$lang_btn3"><i class="rex-icon rex-icon-delete-media"></i></a>
+			<a href="#" class="btn btn-popup" onclick="viewREXMedia('$id', '$mtypes'); return false;" title="$lang_btn4"><i class="rex-icon rex-icon-view-media"></i></a>
+		</span>
+	</div>
+	<div class="rex-js-media-preview"></div>
+</div>
+EOD;
 
+			$cnt .= $this->getInputGroup($field, $input);
+		endif;
+	
+		return $cnt;
+	}
+	
+	
+	function getField_rexmedialist($field, $w, $v)
+	{	$cnt = "";
+	
+		if (isset($field['name']) && !empty($field['name'])):
+			$name = $this->cleanName($field['name']);
+				$name = 'blockSettings['.$name.']';
+			$ph = htmlspecialchars(@$field['placeholder']);
+			$id = $this->cleanName($name);
+			$mtypes = @$field['mediatypes'];
+				$mtypes = (!empty($mtypes)) ? '&args[types]='.urlencode($mtypes) : '';
+			
+			$options = "";
+				if (!empty($v)):
+					$ml = explode(',', $v);
+					foreach ($ml as $m) { $options .= '<option value="'.$m.'">'.$m.'</option>'; }
+				endif;
+			
+			$lang 		= rex_addon::get('blocksettings');
+			$lang_btn1 	= $lang->i18n('a1604_media_select');
+			$lang_btn2 	= $lang->i18n('a1604_media_add');
+			$lang_btn3 	= $lang->i18n('a1604_media_delete');
+			$lang_btn4 	= $lang->i18n('a1604_media_preview');
+			$lang_btn5 	= $lang->i18n('a1604_media_movetop');
+			$lang_btn6 	= $lang->i18n('a1604_media_moveup');
+			$lang_btn7 	= $lang->i18n('a1604_media_movedown');
+			$lang_btn8 	= $lang->i18n('a1604_media_movebottom');
+		
+$input = <<<EOD
+<div class="rex-js-widget rex-js-widget-medialist">
+	<div class="input-group">
+		<select class="form-control" name="REX_MEDIALIST_SELECT[$id]" id="REX_MEDIALIST_SELECT_$id" size="10">$options</select>
+		<input type="hidden" name="$name" id="REX_MEDIALIST_$id" value="$v" />
+		<span class="input-group-addon">
+			<div class="btn-group-vertical">
+				<a href="#" class="btn btn-popup" onclick="moveREXMedialist('$id', 'top'); return false;" title="$lang_btn5"><i class="rex-icon rex-icon-top"></i></a>
+				<a href="#" class="btn btn-popup" onclick="moveREXMedialist('$id', 'up'); return false;" title="$lang_btn6"><i class="rex-icon rex-icon-up"></i></a>
+				<a href="#" class="btn btn-popup" onclick="moveREXMedialist('$id', 'down'); return false;" title="$lang_btn7"><i class="rex-icon rex-icon-down"></i></a>
+				<a href="#" class="btn btn-popup" onclick="moveREXMedialist('$id', 'bottom'); return false;" title="$lang_btn8"><i class="rex-icon rex-icon-bottom"></i></a></div><div class="btn-group-vertical">
+				<a href="#" class="btn btn-popup" onclick="openREXMedialist('$id', '$mtypes'); return false;" title="$lang_btn1"><i class="rex-icon rex-icon-open-mediapool"></i></a>
+				<a href="#" class="btn btn-popup" onclick="addREXMedialist('$id', '$mtypes'); return false;" title="$lang_btn2"><i class="rex-icon rex-icon-add-media"></i></a>
+				<a href="#" class="btn btn-popup" onclick="deleteREXMedialist('$id'); return false;" title="$lang_btn3"><i class="rex-icon rex-icon-delete-media"></i></a>
+				<a href="#" class="btn btn-popup" onclick="viewREXMedialist('$id', '$mtypes'); return false;" title="$lang_btn4"><i class="rex-icon rex-icon-view-media"></i></a>
+			</div>
+		</span>
+	</div>
+	<div class="rex-js-media-preview"></div>
+</div>
+EOD;
+
+			$cnt .= $this->getInputGroup($field, $input);
+		endif;
+	
+		return $cnt;
+	}	
+	
+	
+	function getField_rexlink($field, $w, $v)
+	{	$cnt = "";
+	
+		if (isset($field['name']) && !empty($field['name'])):
+			$name = $this->cleanName($field['name']);
+				$name = 'blockSettings['.$name.']';
+			$ph = htmlspecialchars(@$field['placeholder']);
+			$id = $this->cleanName($name);
+			$rid = 'REX_LINK_'.$id.'_NAME';
+			
+			$aid = intval($v);
+			$aname = "";
+				if ($aid > 0) { $aoo = rex_article::get($aid); if ($aoo){ $aname = $aoo->getName(); } }
+			
+			$lang 		= rex_addon::get('blocksettings');
+			$lang_btn1 	= $lang->i18n('a1604_link_select');
+			$lang_btn2 	= $lang->i18n('a1604_link_delete');
+			
+$input = <<<EOD
+<div class="input-group">
+	<input class="form-control" type="text" name="REX_LINK_NAME[$id]" value="$aname" id="$rid" readonly="">
+	<input type="hidden" name="$name" id="REX_LINK_$id" value="$aid">
+	<span class="input-group-btn">
+		<a href="#" class="btn btn-popup" onclick="openLinkMap('REX_LINK_$id', '&clang=1&category_id=0'); return false;" title="$lang_btn1"><i class="rex-icon rex-icon-open-linkmap"></i></a>
+		<a href="#" class="btn btn-popup" onclick="deleteREXLink('$id'); return false;" title="$lang_btn2"><i class="rex-icon rex-icon-delete-link"></i></a>
+	</span>
+</div>			
+EOD;
+
+			$cnt .= $this->getInputGroup($field, $input);
+		endif;
+	
+		return $cnt;
+	}
+	
+	
+	function getField_rexlinklist($field, $w, $v)
+	{	$cnt = "";
+	
+		if (isset($field['name']) && !empty($field['name'])):
+			$name = $this->cleanName($field['name']);
+				$name = 'blockSettings['.$name.']';
+			$ph = htmlspecialchars(@$field['placeholder']);
+			$id = mt_rand().ceil(rand(0,9999999));
+			
+			$options = "";
+				if (!empty($v)):
+					$ll = explode(',', $v);
+					foreach ($ll as $l):
+						$aid = intval($l);
+						$aname = "";
+							if ($aid > 0) { $aoo = rex_article::get($aid); if ($aoo){ $aname = $aoo->getName(); } }
+
+						$options .= '<option value="'.$aid.'">'.$aname.'</option>';
+					endforeach;
+				endif;
+			
+			$lang 		= rex_addon::get('blocksettings');
+			$lang_btn1 	= $lang->i18n('a1604_link_select');
+			$lang_btn2 	= $lang->i18n('a1604_link_delete');
+			$lang_btn3 	= $lang->i18n('a1604_link_movetop');
+			$lang_btn4 	= $lang->i18n('a1604_link_moveup');
+			$lang_btn5 	= $lang->i18n('a1604_link_movedown');
+			$lang_btn6 	= $lang->i18n('a1604_link_movebottom');
+			
+$input = <<<EOD
+<div class="input-group">
+	<select class="form-control" name="REX_LINKLIST_SELECT[$id]" id="REX_LINKLIST_SELECT_$id" size="10">$options</select>
+	<input type="hidden" name="$name" id="REX_LINKLIST_$id" value="$v" />
+	<span class="input-group-addon"><div class="btn-group-vertical">
+		<a href="#" class="btn btn-popup" onclick="moveREXLinklist('$id','top'); return false;" title="$lang_btn3"><i class="rex-icon rex-icon-top"></i></a>
+		<a href="#" class="btn btn-popup" onclick="moveREXLinklist('$id','up'); return false;" title="$lang_btn4"><i class="rex-icon rex-icon-up"></i></a>
+		<a href="#" class="btn btn-popup" onclick="moveREXLinklist('$id','down'); return false;" title="$lang_btn5"><i class="rex-icon rex-icon-down"></i></a>
+		<a href="#" class="btn btn-popup" onclick="moveREXLinklist('$id','bottom'); return false;" title="$lang_btn6"><i class="rex-icon rex-icon-bottom"></i></a></div><div class="btn-group-vertical">
+		<a href="#" class="btn btn-popup" onclick="openREXLinklist('$id', '&clang=1&category_id=0'); return false;" title="$lang_btn1"><i class="rex-icon rex-icon-open-linkmap"></i></a>
+		<a href="#" class="btn btn-popup" onclick="deleteREXLinklist('$id'); return false;" title="$lang_btn2"><i class="rex-icon rex-icon-delete-link"></i></a></div>
+	</span>
+</div>
+EOD;
+
+			$cnt .= $this->getInputGroup($field, $input);
+		endif;	
+	
+		return $cnt;
+	}
 	
 }
 

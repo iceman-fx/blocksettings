@@ -220,21 +220,21 @@
 				{
 					"name": "test_date",
 					"type": "date",
-					"label": "Date"
+					"label": "Date",
+					"prefix": "d.m.Y",
+					"suffix": "H:i"
 				},
 				
 				{
 					"name": "test_date_stamp",
 					"type": "date",
-					"label": "Date als Stamp",
-					"return": "time"
+					"label": "Date als Stamp"
 				},
 				
 				{
 					"name": "test_datetime_stamp",
 					"type": "datetime",
-					"label": "Datetime als Stamp",
-					"return": "time"
+					"label": "Datetime als Stamp"
 				},
 
 				{
@@ -273,19 +273,25 @@
 				},
 				
 				{
-					"name": "text_rexlink",
+					"name": "test_rexlink",
 					"type": "rexlink",
 					"label": "Rex-Link"
 				},
 				
 				{
-					"name": "text_rexlinklist",
+					"name": "test_rexlinklist",
 					"type": "rexlinklist",
 					"label": "Rex-Linkliste"
 				},
 				
 				{
-					"name": "text_rexmedialist",
+					"name": "test_rexmedia",
+					"type": "rexmedia",
+					"label": "Rex-Media"
+				},
+				
+				{
+					"name": "test_rexmedialist",
 					"type": "rexmedialist",
 					"label": "Rex-Medialiste",
 					"mediatypes": "gif,jpg,jpeg,png"

@@ -12,7 +12,8 @@
 
 .fmBlockSettings .fmBS-content { display: none; padding: 15px; border-top: 1px solid #c1c9d4; }
 .fmBlockSettings .nav > li > a { border-radius: 4px 4px 0px 0px; border-top-width: 2px; border-color: #9ca5b2 #9ca5b2 #9ca5b2; background: #EEE; color: #555; padding: 7px 10px; }
-	.fmBlockSettings .nav > li.active > a { background: #FFF; border: 1px solid #9ca5b2; border-bottom-color: transparent; border-top-width: 2px; }
+	.fmBlockSettings .nav > li > a:hover { background: #FFF; }
+	.fmBlockSettings .nav > li.active > a { background: #FFF; border: 1px solid #9ca5b2; border-bottom-color: transparent; border-top-width: 2px; }	
 .fmBlockSettings .tab-content { padding: 20px 20px 20px; border: 1px solid #9ca5b2; border-top: none; background: #FFF; }
 
 .fmBlockSettings .fmBS-content dl { margin: 15px 0px 0px; }
@@ -31,3 +32,5 @@
 .fmBlockSettings input[type=color] { padding-top: 3px; padding-bottom: 3px; }
 .fmBlockSettings textarea { height: auto; }
 .fmBlockSettings .fmBS-rangetext { min-width: 100px; }
+.fmBlockSettings .fmBS-colorinput { min-width: 100px; background: #FFF; padding: 3px 3px; }
+	.fmBlockSettings .fmBS-colorinput input { background: #FFF; border: none; height: 26px; padding: 0px; }

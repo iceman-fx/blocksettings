@@ -177,3 +177,7 @@ a1604_media_delete = Ausgewähltes Medium löschen
 a1604_media_preview = Ausgewähltes Medium anzeigen
 a1604_link_select = Link auswählen
 a1604_link_delete = Ausgewählten Link löschen
+a1604_link_movetop = Ausgewählten Link an den Anfang verschieben
+a1604_link_moveup = Ausgewählten Link nach oben verschieben
+a1604_link_movedown = Ausgewählten Link nach unten verschieben
+a1604_link_movebottom = Ausgewählten Link an das Ende verschieben

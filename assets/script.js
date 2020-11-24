@@ -1,142 +1,73 @@
 // blockSettings
 // v1.0
 
-
-
 $(function(){
 	
-	//Fallback-Einbindung des Setting-Forms
-	$(document).on("rex:ready", function(){
-		url = new URLSearchParams(window.location.search);
+	//Einbindung des Setting-Forms
+	$(document).on("rex:ready", function() { getBlockSettings(); });				//Settings bei AJAX-Aktion einbinden
+	getBlockSettings();																//Settings bei URL-Direktaufruf einbinden
+	
+	function getBlockSettings()
+	{	url = new URLSearchParams(window.location.search);
 		page 	= url.get("page");
 		func 	= url.get("function");
 		mid 	= parseInt(url.get("module_id"));
 		sid		= parseInt(url.get("slice_id"));
 		
-		if (page == 'content/edit' && func == 'add' && mid > 0 && sid <= 0) {
-		//if (page == 'content/edit' && (func == 'add' || func == 'edit') && mid > 0) {
-			//console.log("neuer Slice soll angelegt werden");			
+		//if (page == 'content/edit' && func == 'add' && mid > 0 && sid <= 0) {
+		if (page == 'content/edit' && (func == 'add' || func == 'edit')) {
+			//console.log("append blocksettings");
+			//console.log("mid: " +mid+ " / sid: " +sid);
 			
 			$.get("", "rex-api-call=a1604_appendForm", function(data){
+				//append Form
 				if (data != 'undefined' && data != "") {
-					$('.rex-slice-add footer.panel-footer').before(data);
+					$('.rex-slice-add footer.panel-footer, .rex-slice-edit footer.panel-footer').before(data);
 				}
+				
+				
+				//Datepicker-Einbindung
+				$.datetimepicker.setLocale('de');
+				$('.fmBS_datepicker-widget input').each(function(){
+					lazy = ($(this).attr('data-datepicker-lazy') == 'true' ? true : false);
+					mask = ($(this).attr('data-datepicker-mask') == 'true' ? true : false);
+					time = ($(this).attr('data-datepicker-time') == 'true' ? true : false);
+					format = (time ? 'd.m.Y H:i' : 'd.m.Y');
+					now = new Date();
+						start = 2000;
+						end = now.getFullYear() + 10;
+					$(this).datetimepicker({
+						format: format, formatDate: 'd.m.Y', formatTime: 'H:i', yearStart: start, yearEnd: end, dayOfWeekStart: 1,
+						mask: mask, lazyInit: lazy, week: true, timepicker: time, step: 15
+					});
+				});
+				
+				$('.fmBS_datepicker-widget a').click(function(){
+					dst = $(this).attr('data-datepicker-dst');
+					if (dst != "" && dst != 'undefined') { $('#'+dst).datetimepicker('show'); }
+				});
+				
+				$('.fmBS_datepicker-widget input').each(function(){
+					if ($(this).val() == '__.__.____' || $(this).val() == '__.__.____ __:__') { $(this).val(""); }						//Kalender-Value bei Reload korrigieren
+				});
+				
+				
+				//Range + Color-Abgleich
+				$('.fmBS-range-input-group input[type=range]').on("input change", function(){
+					$(this).nextAll('input[type=hidden]').val(this.value);
+					$(this).nextAll('span.fmBS-rangetext').text(this.value);
+				});
+			
+				$('.fmBS-color-input-group input[type=color]').on("input change", function(){
+					$(this).parent().prevAll('input[type=text]').val(this.value);
+				});
+				$('.fmBS-color-input-group input[type=text]').on("input change", function(){
+					$(this).next().children('input[type=color]').val(this.value);
+				});
+				
+				
 			});
 		}
-	});
-	
-	
-	//Datepicker-Einbindung
-	$.datetimepicker.setLocale('de');
-	$('.fmBS_datepicker-widget input').each(function(){
-		lazy = ($(this).attr('data-datepicker-lazy') == 'true' ? true : false);
-		mask = ($(this).attr('data-datepicker-mask') == 'true' ? true : false);
-		time = ($(this).attr('data-datepicker-time') == 'true' ? true : false);
-		format = (time ? 'd.m.Y H:i' : 'd.m.Y');
-		now = new Date();
-			start = 2000;
-			end = now.getFullYear() + 10;
-		$(this).datetimepicker({
-			format: format, formatDate: 'd.m.Y', formatTime: 'H:i', yearStart: start, yearEnd: end, dayOfWeekStart: 1,
-			mask: mask, lazyInit: lazy, week: true, timepicker: time, step: 15
-		});
-	});
-	
-	$('.fmBS_datepicker-widget a').click(function(){
-		dst = $(this).attr('data-datepicker-dst');
-		if (dst != "" && dst != 'undefined') { $('#'+dst).datetimepicker('show'); }
-	});	
+	}
 	
 });
-
-
-
-
-
-// LINKMAP
-function fmBS_deleteREXLink(id)
-{	var link;
-	link = new getObj(id);
-	link.obj.value = "";
-	link = new getObj(id+"_NAME");
-	link.obj.value = "";
-}
-
-function fmBS_openREXLinklist(id, param)
-{	var linklist = id;
-	var linkselect = 'REX_LINKLIST_SELECT_'+id;
-	var needle = new getObj(linkselect);
-	var source = needle.obj;
-	var sourcelength = source.options.length;
-	if (typeof(param) == 'undefined') { param = ''; }
-	for (var ii = 0; ii < sourcelength; ii++) {
-		if (source.options[ii].selected) {
-			param = '&action=link_details&file_name='+ source.options[ii].value;
-			break;
-		}
-	}
-
-	return newLinkMapWindow('index.php?page=linkmap&opener_input_field='+linklist+param);
-}
-
-
-// MEDIAPOOL - MEDIA
-function fmBS_openREXMedia(id,param)
-{	var mediaid = id;
-	if (typeof(param) == 'undefined') { param = ''; }
-	
-	return newPoolWindow('index.php?page=mediapool/media'+param+'&opener_input_field='+mediaid);
-}
-
-function fmBS_deleteREXMedia(id)
-{	var a = new getObj(id);
-	a.obj.value = "";
-}
-
-function fmBS_addREXMedia(id,params)
-{	if (typeof(params) == 'undefined') { params = ''; }
-	
-	return newPoolWindow('index.php?page=mediapool/upload&opener_input_field='+id+params);
-}
-
-// MEDIAPOOL - MEDIALIST
-function fmBS_openREXMedialist(id,param)
-{	var medialist = id;
-	var mediaselect = 'REX_MEDIALIST_SELECT_' + id;
-	var needle = new getObj(mediaselect);
-	var source = needle.obj;
-	var sourcelength = source.options.length;
-	if (typeof(param) == 'undefined') { param = ''; }	
-	for (ii = 0; ii < sourcelength; ii++) {
-		if (source.options[ii].selected) {
-			param += '&file_name='+ source.options[ii].value;
-			break;
-		}
-	}
-	
-	return newPoolWindow('index.php?page=mediapool/media'+param+'&opener_input_field='+medialist);
-}
-
-function fmBS_viewREXMedialist(id,param)
-{	var medialist = 'REX_MEDIALIST_' + id;
-	var mediaselect = 'REX_MEDIALIST_SELECT_' + id;
-	var needle = new getObj(mediaselect);
-	var source = needle.obj;
-	var sourcelength = source.options.length;
-	if ( typeof(param) == 'undefined') { param = ''; }
-	for (ii = 0; ii < sourcelength; ii++) {
-		if (source.options[ii].selected) {
-			param += '&file_name='+ source.options[ii].value;
-			break;
-		}
-	}
-	
-	if(param != '')
-		return newPoolWindow('index.php?page=mediapool/media' + param + '&opener_input_field=' + medialist);
-}
-
-function fmBS_addREXMedialist(id,params)
-{	if (typeof(params) == 'undefined') { params = ''; }
-	
-	return newPoolWindow('index.php?page=mediapool/upload&opener_input_field='+id+params);
-}
