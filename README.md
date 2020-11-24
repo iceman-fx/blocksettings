@@ -3,7 +3,8 @@
 
 Addon zum automatischen Einbinden und Verwalten von wiederkehrenden Einstellungen eines jeden Blockes / Slices.
 
-![blocksettings](https://user-images.githubusercontent.com/4291047/100095550-f5297000-2e5a-11eb-8c3b-91be833ad196.jpg)
+
+![blocksettings](https://user-images.githubusercontent.com/4291047/100097706-391d7480-2e5d-11eb-9b44-0f0d2656bb88.jpg)
 
 Features
 --------
