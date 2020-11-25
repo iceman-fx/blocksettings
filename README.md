@@ -13,7 +13,8 @@ Features
 - Ausgabe der generierten Felder automatisch in alle Blöcke oder Beschränkung nur auf ausgewählte Module
 - Abruf aller durch den Nutzer hinterlegten Eingabewerte als Array oder direkter Abruf eines einzelnen Wertes
 - separate Prüffunktion zur einfachen Einschränkung der Sichtbarkeit eines jeden Blockes (Online von-bis)
-- das Addon benötigt [u]keine[u] anderen Addons als Grundlage
+- search_it und bloecks ready
+- benötigt [u]keine[u] anderen Addons als Grundlage und belegt keine Redaxo Modulvsriablen
 
 Eine Hilfe zur Nutzung/Einbindung befindet sich direkt im Addon.
 
