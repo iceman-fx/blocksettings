@@ -14,7 +14,7 @@ Features
 - Abruf aller durch den Nutzer hinterlegten Eingabewerte als Array oder direkter Abruf eines einzelnen Wertes
 - Zusatzfunktion zum zeitgesteuerten Ein-/Ausblenden von Blöcken integriert (Online von-bis)
 - search_it und bloecks ready
-- benötigt keine anderen Addons als Grundlage und belegt keine Redaxo Modulvsriablen
+- benötigt keine anderen Addons als Grundlage und belegt keine Redaxo Modulvariablen
 
 Eine Hilfe zur Nutzung/Einbindung befindet sich direkt im Addon.
 
