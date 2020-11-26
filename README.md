@@ -1,7 +1,7 @@
-﻿Block-Settings
+﻿﻿Block-Settings
 ==============
 
-Redaxo 5-Addon zum automatischen Einbinden und Verwalten von wiederkehrenden Einstellungen eines jeden Blockes / Slices.
+Redaxo 5-Addon zum automatischen Einbinden und Verwalten von wiederkehrenden Einstellungen eines jeden Blockes (Slice) inkl. zeitgesteuertem Ein-/Ausblenden von Blöcken.
 
 
 ![blocksettings](https://user-images.githubusercontent.com/4291047/100097706-391d7480-2e5d-11eb-9b44-0f0d2656bb88.jpg)
