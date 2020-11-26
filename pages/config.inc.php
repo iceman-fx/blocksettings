@@ -94,6 +94,9 @@ endif;
         
         	<legend><?php echo $this->i18n('a1604_subheader_config2'); ?></legend>
             
+            
+            <dl class="rex-form-group form-group"><dt class="textblock"><?php echo $this->i18n('a1604_text1'); ?></dt></dl>
+            
 
             <dl class="rex-form-group form-group">
                 <dt><label for=""><?php echo $this->i18n('a1604_config_input_onlinefrom'); ?></label></dt>
@@ -109,15 +112,6 @@ endif;
                     <input type="text" size="25" name="input_onlineto" id="input_onlineto" value="<?php echo $config['input_onlineto']; ?>" maxlength="100" class="form-control" />
                 </dd>
             </dl>
-            
-            
-
-            
-            <!--      
-			<p>&nbsp;</p>
-            <legend></legend>
-			<p><?php echo $this->i18n('a1604_text1'); ?></p>
-            -->
                                                               
         </div>
         

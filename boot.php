@@ -50,18 +50,17 @@ rex_extension::register( 'SLICE_INSERTED', function($ep){
 
 
 
-//Slice Output
+//Slice Output (BE/FE)
+/*
 rex_extension::register( array('SLICE_OUTPUT'), function($ep){
 	$o = new blockSettings();
 	$o->checkOnlinestatus($ep);
 });
-
-if (!rex::isBackend()):
-	rex_extension::register( 'SLICE_SHOW', function($ep){
-		$o = new blockSettings();
-		return $o->checkOnlinestatus($ep);
-	});
-endif;
+*/
+rex_extension::register( 'SLICE_SHOW', function($ep){
+	$o = new blockSettings();
+	return $o->checkOnlinestatus($ep);
+});
 
 
 

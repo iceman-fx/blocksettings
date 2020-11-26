@@ -1,5 +1,5 @@
 @charset "utf-8";
-/* CSS Document for fmModulSettings */
+/* CSS Document for blockSettings */
 /* v1.0 */
 
 .fmBlockSettings { padding-top: 25px; background: #e0f5ee; }
@@ -7,7 +7,7 @@
 
 .fmBlockSettings .fmBS-toggler { position: relative; background: #f3f6fb; cursor: pointer; color: #7d8288; padding: 10px 30px 10px 15px; transition: all .5s ease; }
 	.fmBlockSettings .fmBS-toggler:hover { background: #FFF; color: #7d8288; }
-	.fmBlockSettings .fmBS-toggler > div { display: inline-block; width: 15px; height: 15px; line-height: 0px; }
+	.fmBlockSettings .fmBS-toggler > div, div.fmBS-icon-left { display: inline-block; width: 15px; height: 15px; line-height: 0px; }
 	.fmBlockSettings .fmBS-toggler > div.fmBS-icon-right { position: absolute; top: 13px; right: 15px; }
 
 .fmBlockSettings .fmBS-content { display: none; padding: 15px; border-top: 1px solid #c1c9d4; }
@@ -25,6 +25,11 @@
 .fmBlockSettings .fmBS-fieldset-inline dl { display: inline-block; width: auto; vertical-align: top; margin: 7px 15px 0px 0px; }
 .fmBlockSettings .fmBS-fieldset-inline dt { display: block; width: auto; padding-top: 0px; }
 	.fmBlockSettings .fmBS-fieldset-inline dt label { font-weight: normal; margin-bottom: 2px; }
+
+
+.fmBlock-offline {}
+.fmBlock-offline .panel-body::before { content: ""; display: block; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; background: rgba(107, 124, 148, 0.25); }
+.fmBlockOfflinestatus { background: #707d8f; padding: 10px 15px; color: rgba(255,255,255, 0.9); border-top: 1px solid #dfe3e9; }
 
 
 /* Felder */

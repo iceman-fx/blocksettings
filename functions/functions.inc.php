@@ -113,28 +113,56 @@ class blockSettings
 	
 	
 	//Onlinestatus prüfen (benötigt mind. 1 Feld)
-	public function getOnlinestatus($sid = 0, $field_from = "", $field_to = "")
+	public function getOnlinestatus($sid = 0, $f_from = "", $f_to = "")
 	{	$sid = intval($sid);
-		$return = false;
+		$return = true;
 		
-		if ($sid > 0 && (!empty($field_from) || !empty($field_to))):
-			$field_from = $this->getSettings($sid, $field_from, 'time');
-			$field_to = $this->getSettings($sid, $field_to, 'timeend');
+		if ($sid > 0 && !empty($f_from) && !empty($f_to)):
+			$f_from = $this->getSettings($sid, $f_from, 'time');
+			$f_to = $this->getSettings($sid, $f_to, 'timeend');
 			$now = time();
 		
-			$return = (($field_from == 0 || $now >= $field_from) && ($field_to == 0 || $now <= $field_to)) ? true : false;
+			$return = (($f_from == 0 || $now >= $f_from) && ($f_to == 0 || $now <= $f_to)) ? true : false;
 		endif;
 		
 		return $return;
 	}
 	
 	
-	//Onlinestatus prüfen und Modulausgabe ggf. blockieren
+	//Onlinestatus prüfen und Modulausgabe anpassen/blockieren
 	function checkOnlinestatus($ep)
 	{	$op = $ep->getSubject();
-		$sid = intval($ep->getParam('slice_id'));		
+		$sid = intval($ep->getParam('slice_id'));
 		
-		if (!$this->getOnlinestatus($sid, 'onlineFrom', 'onlineTo')) { return false; }		
+		$config = rex_addon::get('blocksettings')->getConfig('config');
+			$f_from = @$config['input_onlinefrom'];
+			$f_to = @$config['input_onlineto'];
+		
+		if (!empty($f_from) && !empty($f_to)):
+			//Felder sind angegeben > Status prüfen
+			if (!$this->getOnlinestatus($sid, $f_from, $f_to)):
+				if (!rex::isBackend()):
+					//im Frontend Ausgabe blocken
+					return false;
+				else:
+					//im Backend Info ausgeben
+					$lang = rex_addon::get('blocksettings');
+					
+					$field_from = $this->getSettings($sid, $f_from);
+					$field_to = $this->getSettings($sid, $f_to);
+					
+						$from = (!empty($field_from) && !empty($field_to)) ? $lang->i18n('a1604_mod_visibility_from').' '.$field_from : '';
+						$from = (!empty($field_from) && empty($field_to)) ? $lang->i18n('a1604_mod_visibility_asof').' '.$field_from : $from;
+							$from .= (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $field_from)) ? ' '.$lang->i18n('a1604_mod_visibility_clock') : '';
+						
+						$to = (!empty($field_to)) ? ' - '.$field_to : '';
+						$to .= (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $field_to)) ? ' '.$lang->i18n('a1604_mod_visibility_clock') : '';
+					
+					$op .= '<script>$("#slice'.$sid.'").not(".rex-slice-offline").addClass("fmBlock-offline"); $("#slice'.$sid.' header").after(\'<div class="fmBlockOfflinestatus"><div class="fmBS-icon-left"><i class="rex-icon fa-clock-o"></i></div> '.$lang->i18n('a1604_mod_visibility').' '.$from.' '.$to.'</div>\');</script>';
+				endif;
+			endif;
+		endif;
+				
 		return $op;
 	}
 

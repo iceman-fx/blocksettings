@@ -14,7 +14,7 @@ a1604_head_help = Onlinehilfe
 a1604_subheader_config1 = Einstellungen HTML-Editor
 a1604_subheader_config2 = Einstellungen Sichtbarkeitsprüfung (Online vom-bis)
 
-a1604_text1 = 
+a1604_text1 = Hinterlegen Sie hier die beiden Felder, welche zur automatischen Prüfung des Onlinestatus genutzt werden sollen. <br>Geben Sie dazu die Feldnamen der entsprechend definierten Kalenderfelder an.
 
 
 # Globale Felder
@@ -51,6 +51,10 @@ a1604_config_input_onlineto = Feldname Kalenderelement<br>"Online bis"
 a1604_mod_toggler = Block-Einstellungen
 a1604_mod_toggler_info = Zusätzliche Einstellungen dieses Blockes
 a1604_mod_calendar = Kalender öffnen ...
+a1604_mod_visibility = Block sichtbar
+a1604_mod_visibility_from = vom
+a1604_mod_visibility_asof = ab
+a1604_mod_visibility_clock = Uhr
 
 
 # Sonstige Vorgaben

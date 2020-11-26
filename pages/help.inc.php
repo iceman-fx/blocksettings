@@ -56,7 +56,7 @@
                 </ul>
 
 
-<p>Weiterhin kann über eine Zusatzfunktion ein Online-Status eines jeden Blockes realisiert werden.</p>
+<p>Weiterhin ist die Prüfung des Online-Status eines jeden Blockes integriert, um das zeitgesteuerte Anzeigen/Ausblenden von Blöcken zu ermöglichen.</p>
 <p>&nbsp;</p>
 
 <h2>Allgemein</h2>
@@ -983,116 +983,13 @@ Tipp: Die Information sollte nur wenige Zeichen umfassen.</td>
 
 
 
-
-
-
-
-
-
-
-
-<!--
-
-
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <th width="200" scope="col">Attribut</th>
-    <th scope="col">Erklärung</th>
-</tr>
-  <tr>
-    <td valign="top"><strong>name<br>
-</strong>(Pflichtangabe)</td>
-    <td valign="top">
-      Angabe eines <u>eindeutigen</u> Feldnames, welcher gleichzeitig zum Abruf der gespeicherten Werte genutzt wird. </td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>type<br>
-</strong>(Pflichtangabe)</td>
-    <td valign="top">Angabe des auszugebenden Feldtypes .</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>label</strong></td>
-    <td valign="top">Hinterlegung der Feldbezeichnung, welche vor dem Feld als Text ausgegeben wird.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>value</strong></td>
-    <td valign="top">Vorbelegung des Feldwertes oder Angabe der möglichen Werte als Struktur (&quot;Wert&quot;: &quot;Titel&quot;).</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>placeholder</strong></td>
-    <td valign="top">Angabe eines Platzhaltertextes für weitere Erklärungen.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>maxlength</strong></td>
-    <td valign="top">Angabe einer maximalen Länge für Werteeingaben.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>width</strong></td>
-    <td valign="top">Einstellung des Feldes auf eine bestimmte Zielbreite (Pixel).<br>
-      Mit diese Option, in Verbindung mit Gruppen und Attribut &quot;
-        inlinefields&quot;), lassen sich mehrere Felder nebeneinander stellen.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>prefix</strong></td>
-    <td valign="top">Gibt eine zusätzliche Information direkt vor dem Feld aus.<br>
-      Tipp: Die Information sollte nur wenige Zeichen umfassen.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>suffix</strong></td>
-    <td valign="top">Gibt eine zusätzliche Information direkt nach dem Feld aus.<br>
-Tipp: Die Information sollte nur wenige Zeichen umfassen.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>multiple</strong></td>
-    <td valign="top">Aktivierung der Option zur Mehrfachauswahl von Werten<br>
-    Mögliche Werte: true|false </td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>default</strong></td>
-    <td valign="top">Angabe einer Standardauswahl bei Definition von mehreren möglichen Werten.
-    <br>
-    Als Angabe wird der Wert erwartet.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>min</strong></td>
-    <td valign="top">Hinterlegung des minimal gültigen Wertes für die Eingabe.
-</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>max</strong></td>
-    <td valign="top">Hinterlegung des maximal gültigen Wertes für die Eingabe. </td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>step</strong></td>
-    <td valign="top">Hinterlegung der Schrittweise beim Verschieben des Reglers.
-</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>mediatypes</strong></td>
-    <td valign="top">Angabe der gültigen Mediatypen für die Auswahl innerhalb des Mediapools.
-    <br>
-    Die Angabe erfolgt analog der Angabe in den üblichen REX_MEDIA-Platzhaltern.</td>
-  </tr>
-  <tr>
-    <td valign="top"><strong>editor</strong></td>
-    <td valign="top">Bindet den Wysiwyg-Editor beim entsprechenden Textfeld ein.<br>
-      Mögliche Werte: true|false
-</td>
-  </tr>
-</table>
-
-<p>&nbsp;</p>
-
-
--->
-
 <p>&nbsp;</p>
 
 <h2>Abruf in der Modulausgabe</h2>
                     
                     <!-- Allgemein -->
                     <a name="output"></a>
-                    <p>Mit dem folgenden PHP-Code können alle vom  Redakteur im jeweiligen Block gespeicherten Werte abgerufen werden.<br>
+                    <p>Mit dem folgenden PHP-Code können alle vom  Redakteur im jeweiligen Block gespeicherten Werte abgerufen und individuell weiterverarbeitet werden.<br>
                       Die Rückgabe der Werte erfolgt dabei als Array.
                     </p>
 
@@ -1135,22 +1032,23 @@ echo $s->getSettings(REX_SLICE_ID, 'onlineFrom', 'time');       //Datumsformat w
                     <!-- Allgemein -->
                     <a name="extras"></a>
                     <h3>Online-Status eines Blockes  realisieren:</h3>
-                <p>Über eine kleine Zusatzfunktion im Addon kann ein einfacher Online-Status eines jeden Blockes realisiert werden.<br>
-                  Definieren Sie dazu 2 Kalenderfelder (siehe Beispiel-Definition) und hinterlegen in jedem Modul den folgenden PHP-Block an erster Stelle:</p>
+                <p>Über eine kleine Zusatzfunktion im Addon kann ein  Online-Status eines jeden Blockes realisiert werden.<br>
+                Definieren Sie dazu 2 Kalenderfelder (type = date|datetime) und hinterlegen die Feldnamen in den Einstellungen dieses Addons.<br>
+                  Anschließend wird der Online-Status automatisch bei der Block-Ausgabe mit den im Block hinterlegten Kalenderwerten geprüft und  die Ausgabe ggf. blockiert.                </p>
+                <p>                  Hinweis: Soll keine automatische Prüfung durchgeführt werden, dann lassen Sie die beiden Felder in den Einstellungen einfach leer.                </p>
+<p>Zusätzlich kann über den folgenden Funktionsaufruf eine eigene Abfrage nach dem Online-Status durchgeführt werden:</p>
                     
 <pre>
 <code>$s = new blockSettings();
-if (!$s->getOnlinestatus(REX_SLICE_ID, 'onlineFrom', 'onlineTo')) { return; }</code>
+if ($s->getOnlinestatus(REX_SLICE_ID, 'onlineFrom', 'onlineTo')) {
+    //Block ist sichtbar
+} else {
+    //Block ist nicht sichtbar
+}</code>
 </pre>
                     
-                    <p>                    Für &quot;onlineFrom&quot; und &quot;onlineTo&quot; geben Sie dabei die Namen Ihrer beiden definierten Felder an.</p>
-
-
-
-
-
-
-					<p>&nbsp;</p>
+                    <p>                    Für &quot;onlineFrom&quot; und &quot;onlineTo&quot; geben Sie dabei die Feldnamen Ihrer beiden definierten Kalenderfelder an.                    </p>
+                    <p>&nbsp;</p>
                     
                     <h3>Fragen, Wünsche, Probleme?</h3>
                     Du hast einen Fehler gefunden oder ein nettes Feature parat?<br>
