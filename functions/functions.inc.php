@@ -113,7 +113,7 @@ class blockSettings
 	
 	
 	//Onlinestatus prüfen (benötigt mind. 1 Feld)
-	public function getOnlinestatus($sid = 0, $field_from = "", $field_to)
+	public function getOnlinestatus($sid = 0, $field_from = "", $field_to = "")
 	{	$sid = intval($sid);
 		$return = false;
 		
@@ -126,6 +126,16 @@ class blockSettings
 		endif;
 		
 		return $return;
+	}
+	
+	
+	//Onlinestatus prüfen und Modulausgabe ggf. blockieren
+	function checkOnlinestatus($ep)
+	{	$op = $ep->getSubject();
+		$sid = intval($ep->getParam('slice_id'));		
+		
+		if (!$this->getOnlinestatus($sid, 'onlineFrom', 'onlineTo')) { return false; }		
+		return $op;
 	}
 
 
@@ -298,7 +308,8 @@ EOD;
 						$width = (isset($field['width'])) ? intval($field['width']) : 0;
 							$width = ($width > 0) ? 'style="width:'.$width.'px"' : '';
 						
-						$value = ($this->mode == 'add') ? '' : $this->getSettings($this->sid, $field['name']);				//gespeicherten Wert für Value einladen (hat nichts mit den möglichen Values des Feldes zu tun)
+						$value = (!is_array(@$field['value'])) ? @$field['value'] : '';
+							$value = ($this->mode == 'add') ? $value : $this->getSettings($this->sid, $field['name']);				//gespeicherten Wert für Value einladen (hat nichts mit den möglichen Values des Feldes zu tun)
 							$value = (empty($value)) ? @$field['default'] : $value;											//falls nichts gespeichert, dann default-Wert nutzen
 						
 						
@@ -335,14 +346,14 @@ EOD;
 	}
 	
 	
-	function getInputGroup($field, $input)
+	function getInputGroup($field, $input, $w = "")
 	{	$cnt = "";
 	
 		if (is_array($field) && !empty($input)):
 			$pre = htmlspecialchars(@$field['prefix']);
 			$suf = htmlspecialchars(@$field['suffix']);
 		
-			$cnt .= (!empty($pre) || !empty($suf)) ? '<div class="input-group">' : '';
+			$cnt .= (!empty($pre) || !empty($suf)) ? '<div class="input-group" '.$w.'>' : '';
 			$cnt .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 				$cnt .= $input;
 			$cnt .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
@@ -369,7 +380,7 @@ EOD;
 			
 			$input = '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';
             
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
 	
 		return $cnt;
@@ -388,8 +399,8 @@ EOD;
 			$input = '<div class="input-group fmBS-color-input-group">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 			
-				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' />';
-				$input .= '<span class="input-group-addon fmBS-colorinput"><input type="color" id="fmBS_'.$name.'_color" value="'.$v.'" title="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" '.$w.' /></span>';
+				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="7" placeholder="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" />';
+				$input .= '<span class="input-group-addon fmBS-colorinput"><input type="color" id="fmBS_'.$name.'_color" value="'.$v.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" /></span>';
 				
 				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
 			$input .= '</div>';
@@ -412,7 +423,8 @@ EOD;
 			$max = (isset($field['max'])) ? 'max="'.$field['max'].'"' : '';
 			
 			$input = '<input type="number" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" '.$min.' '.$max.' class="form-control" '.$w.' />';
-			$cnt .= $this->getInputGroup($field, $input);
+			
+			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
 	
 		return $cnt;
@@ -434,7 +446,7 @@ EOD;
 			$input = '<div class="input-group fmBS-range-input-group">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 				
-				$input .= '<input type="range" id="fmBS_'.$name.'_range" value="'.$v.'" '.$min.' '.$max.' '.$step.' class="form-control" '.$w.' />';
+				$input .= '<input type="range" id="fmBS_'.$name.'_range" value="'.$v.'" '.$min.' '.$max.' '.$step.' class="form-control" />';
 				$input .= '<input type="hidden" name="blockSettings['.$name.']" id="fmBS_'.$name.'_value" value="'.$v.'" />';
 				$input .= '<span class="input-group-addon fmBS-rangetext" id="fmBS_'.$name.'_text">'.$v.'</span>';
 				
@@ -500,7 +512,7 @@ EOD;
 			$input = '<textarea name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control '.$edc.'" '.$edp.' '.$edh.' '.$w.' '.$h.' />'.$v.'</textarea>';
             $input .= $edi;
             
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
 	
 		return $cnt;
@@ -525,9 +537,9 @@ EOD;
 					return;
 				endif;
 				
-			$input = '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control">'.$options.'</select>';
+			$input = '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control" '.$w.'>'.$options.'</select>';
             
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
 	
 		return $cnt;
@@ -545,7 +557,7 @@ EOD;
 			$sel = ($v == $val) ? 'checked="checked"' : '';
 			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$val.'" '.$sel.' />'.$ph.'</label></div>';
             
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $input;
 		endif;
 	
 		return $cnt;
@@ -572,7 +584,7 @@ EOD;
 					return;
 				endif;
 			
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $input;
 		endif;
 	
 		return $cnt;
@@ -599,8 +611,7 @@ EOD;
 			$input = '<div class="input-group fmBS_datepicker-widget">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" class="form-control" data-datepicker-time="'.$picker_time.'" data-datepicker-mask="true" />';
-				$input .= '<span class="input-group-btn"><a class="btn btn-popup" onclick="return false;" title="'.$lang_calendar.'" data-datepicker-dst="fmBS_'.$name.'"><i class="rex-icon fa-calendar"></i></a></span>';
-				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
+				$input .= '<span class="input-group-btn"><a class="btn btn-popup" onclick="return false;" title="'.$lang_calendar.'" data-datepicker-dst="fmBS_'.$name.'"><i class="rex-icon fa-calendar"></i></a><div></div></span>';
 			$input .= '</div>';
 			
 			$cnt .= $input;
@@ -643,7 +654,7 @@ $input = <<<EOD
 </div>
 EOD;
 
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $input;
 		endif;
 	
 		return $cnt;
@@ -699,7 +710,7 @@ $input = <<<EOD
 </div>
 EOD;
 
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $input;
 		endif;
 	
 		return $cnt;
@@ -735,7 +746,7 @@ $input = <<<EOD
 </div>			
 EOD;
 
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $input;
 		endif;
 	
 		return $cnt;
@@ -786,7 +797,7 @@ $input = <<<EOD
 </div>
 EOD;
 
-			$cnt .= $this->getInputGroup($field, $input);
+			$cnt .= $input;
 		endif;	
 	
 		return $cnt;

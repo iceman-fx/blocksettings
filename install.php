@@ -18,6 +18,8 @@ if (!$this->hasConfig()):
 		'editor'			=> '',
 		'editor_height'		=> '200',
 		'editor_profile'	=> 'default',
+		'input_onlinefrom'	=> 'onlineFrom',
+		'input_onlineto'	=> 'onlineTo',
 	]);
 endif;
 

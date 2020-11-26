@@ -48,6 +48,23 @@ rex_extension::register( 'SLICE_INSERTED', function($ep){
 
 
 
+
+
+//Slice Output
+rex_extension::register( array('SLICE_OUTPUT'), function($ep){
+	$o = new blockSettings();
+	$o->checkOnlinestatus($ep);
+});
+
+if (!rex::isBackend()):
+	rex_extension::register( 'SLICE_SHOW', function($ep){
+		$o = new blockSettings();
+		return $o->checkOnlinestatus($ep);
+	});
+endif;
+
+
+
 // Asstes im Backend einbinden (z.B. style.css) - es wird eine Versionsangabe angehängt, damit nach einem neuen Release des Addons die Datei nicht aus dem Browsercache verwendet wird
 rex_view::addCssFile($this->getAssetsUrl('datepicker/jquery.datetimepicker.min.css?v=' . $this->getVersion()));
 rex_view::addJsFile($this->getAssetsUrl('datepicker/jquery.datetimepicker.full.min.js?v=' . $this->getVersion()));

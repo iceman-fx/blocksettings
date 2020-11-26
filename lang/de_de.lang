@@ -12,6 +12,7 @@ a1604_head_admin = Administrative Einstellungen
 a1604_head_help = Onlinehilfe
 
 a1604_subheader_config1 = Einstellungen HTML-Editor
+a1604_subheader_config2 = Einstellungen Sichtbarkeitsprüfung (Online vom-bis)
 
 a1604_text1 = 
 
@@ -41,6 +42,9 @@ a1604_config_editor = Auswahl HTML-Editor
 a1604_config_editor_height = Höhe des Editors
 a1604_config_editor_profile = Profil des Editors
 a1604_config_editor_notfound = - kein Editor-Addon gefunden -
+a1604_config_editor_none = - kein Editor ausgewählt -
+a1604_config_input_onlinefrom = Feldname Kalenderelement<br>"Online vom"
+a1604_config_input_onlineto = Feldname Kalenderelement<br>"Online bis"
 
 
 # Modulausgabe

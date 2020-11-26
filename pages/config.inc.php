@@ -17,6 +17,8 @@ if ($func == "save" && isset($_POST['submit'])):
 		'editor'				=> rex_post('editor'),
 		'editor_height'			=> rex_post('editor_height'),
 		'editor_profile'		=> rex_post('editor_profile'),
+		'input_onlinefrom'		=> rex_post('input_onlinefrom'),
+		'input_onlineto'		=> rex_post('input_onlineto'),
 	]);
 
 	//Rückmeldung
@@ -48,6 +50,8 @@ endif;
                 <dt><label for=""><?php echo $this->i18n('a1604_config_editor'); ?></label></dt>
                 <dd>
                     <select name="editor" size="1" class="form-control" <?php echo $dis; ?>>
+                    	<option value="0"><?php echo $this->i18n('a1604_config_editor_none'); ?></option>';
+                        <option value=""></option>';
                         <?php
 						$eds = array("CKEditor 4"=>"ckeditor", "CKEditor 5"=>"cke5", "TinyMCE 4"=>"tinymce4", "TinyMCE 5"=>"tinymce5");				//, "Redactor"=>"redactor", "Redactor 2"=>"redactor2"
 						
@@ -84,6 +88,29 @@ endif;
                     </div>
                 </dd>
             </dl>
+
+
+			<dl class="rex-form-group form-group"><dt></dt></dl>
+        
+        	<legend><?php echo $this->i18n('a1604_subheader_config2'); ?></legend>
+            
+
+            <dl class="rex-form-group form-group">
+                <dt><label for=""><?php echo $this->i18n('a1604_config_input_onlinefrom'); ?></label></dt>
+                <dd>
+                    <input type="text" size="25" name="input_onlinefrom" id="input_onlinefrom" value="<?php echo $config['input_onlinefrom']; ?>" maxlength="100" class="form-control" />
+                </dd>
+            </dl>
+            
+
+            <dl class="rex-form-group form-group">
+                <dt><label for=""><?php echo $this->i18n('a1604_config_input_onlineto'); ?></label></dt>
+                <dd>
+                    <input type="text" size="25" name="input_onlineto" id="input_onlineto" value="<?php echo $config['input_onlineto']; ?>" maxlength="100" class="form-control" />
+                </dd>
+            </dl>
+            
+            
 
             
             <!--      

@@ -156,7 +156,7 @@
 					"name": "bgColor",
 					"type": "color",
 					"label": "Hintergrundfarbe",
-					"default": "#FFFFFF",
+					"value": "#FFFFFF",
 					"placeholder": "Bsp: #11AA99"						
 				},
 
@@ -201,109 +201,9 @@
 					"name": "cssClass",
 					"type": "text",
 					"label": "CSS-Klasse",
-					"maxlength": 30
+					"maxlength": 50
 				}
 			]
 		}
-
-
-
-
-
-
-
-
-
-		,{
-			"tab": "Test",
-			"fields": [
-				{
-					"name": "test_date",
-					"type": "date",
-					"label": "Date",
-					"prefix": "d.m.Y",
-					"suffix": "H:i"
-				},
-				
-				{
-					"name": "test_date_stamp",
-					"type": "date",
-					"label": "Date als Stamp"
-				},
-				
-				{
-					"name": "test_datetime_stamp",
-					"type": "datetime",
-					"label": "Datetime als Stamp"
-				},
-
-				{
-					"name": "test_range",
-					"type": "range",
-					"label": "Range",
-					"default": 1,
-					"min": 1,
-					"max": 100,
-					"step": 1
-				},
-
-				{
-					"name": "test_textarea",
-					"type": "textarea",
-					"label": "Textarea"
-				},
-
-				{
-					"name": "test_textarea_editor",
-					"type": "textarea",
-					"label": "Textarea mit Editor",
-					"editor": true
-				},
-
-				{
-					"name": "test_radio",
-					"type": "radio",
-					"label": "Radio",
-					"value": {
-						"all": "alle",
-						"single": "einer",
-						"none": "keine"
-					},
-					"default": "single"
-				},
-				
-				{
-					"name": "test_rexlink",
-					"type": "rexlink",
-					"label": "Rex-Link"
-				},
-				
-				{
-					"name": "test_rexlinklist",
-					"type": "rexlinklist",
-					"label": "Rex-Linkliste"
-				},
-				
-				{
-					"name": "test_rexmedia",
-					"type": "rexmedia",
-					"label": "Rex-Media"
-				},
-				
-				{
-					"name": "test_rexmedialist",
-					"type": "rexmedialist",
-					"label": "Rex-Medialiste",
-					"mediatypes": "gif,jpg,jpeg,png"
-				}
-
-
-
-			]
-		}
-
-
-
-
 		
 ]}
