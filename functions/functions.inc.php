@@ -185,19 +185,27 @@ class blockSettings
 		//Vorgaben einlesen
 		if ($noembed || $ep->getParam('function') == 'add' || $ep->getParam('function') == 'edit'):
 			$url = $_SERVER['REQUEST_URI'];
-			preg_match("/module_id=([0-9]+)/i", $url, $mid);														//Modul-ID des Blockes aus URL holen
-			preg_match("/slice_id=([0-9]+)/i", $url, $sid);															//Slice-ID des Blockes aus URL holen
 			preg_match("/function=([a-z]+)/i", $url, $mode);														//Modus (add/edit) des Blockes aus URL holen
-		
-			if ($noembed):
-				$mid = @intval($mid[1]);																			//Modul-ID setzen aus URL
-				$sid = @intval($sid[1]);																			//Slice-ID setzen aus URL
 				$mode = $mode[1];
-			else:
-				$op = $ep->getSubject();																			//Content des ExtPoint (Modulinput)
-				$mid = ($ep->getParam('function') == 'add') ? @intval($mid[1]) : @$ep->getParam('module_id');		//Modul-ID setzen
-				//$sid = ($ep->getParam('function') == 'add') ? @intval($sid[1]) : @$ep->getParam('slice_id');		//Slice-ID setzen
-				$sid = @intval($sid[1]);																			//muss aus URL gezogen werden, da SLICE_SHOW alle vorhandenen Blöcke auf einmal durchläuft und damit die ID falsch wäre	
+			preg_match("/module_id=([0-9]+)/i", $url, $mid);														//Modul-ID des Blockes aus URL holen
+				$mid = @intval($mid[1]);
+			preg_match("/slice_id=([0-9]+)/i", $url, $sid);															//Slice-ID des Blockes aus URL holen
+				$sid = @intval($sid[1]);
+			
+				if ($sid > 0 && empty($mid) && $mode == 'edit'):
+					//mid aus DB holen
+					$db = rex_sql::factory();
+					$db->setQuery("SELECT module_id FROM ".rex::getTable('article_slice')." WHERE id = '".$sid."' LIMIT 0,1");
+					$mid = ($db->getRows() > 0) ? intval($db->getValue('module_id')) : 0;
+				endif;
+		
+			if (!$noembed):
+				$op = $ep->getSubject();																					//Content des ExtPoint (Modulinput)
+				
+				if (!preg_match('/(<div class="panel panel-add">|<div class="panel panel-edit">)/i', $op)) { return; }		//andere Slices übergehen
+
+				$mid = ($ep->getParam('function') == 'add') ? @intval($mid[1]) : @$ep->getParam('module_id');				//Modul-ID setzen
+				//$sid = ($ep->getParam('function') == 'add') ? @intval($sid[1]) : @$ep->getParam('slice_id');				//Slice-ID setzen
 				$mode = $ep->getParam('function');
 			endif;
 			
@@ -207,10 +215,20 @@ class blockSettings
 			$this->sid = ($sid > 0) ? $sid : 0;
 			$this->mode = $mode;
 			
+			
+			//echo "EP func: ".$ep->getParam('function');
 			/*
+			echo "<br>URL: ".$url;
 			echo "<br>Mode: ".$this->mode;
-			echo "<br><br>MID: ".$this->mid."<br><br>";
-			*/			
+			echo "<br><br>MID: ".$this->mid;
+			echo "<br><br>SID: ".$this->sid."<br><br>";
+			*/
+			/*
+			echo "<pre>";
+				print_r(htmlspecialchars($ep->getSubject()));
+			echo "</pre>";
+			*/
+						
 			
 			//Definition einladen und auswerten
 			$db = rex_sql::factory();
@@ -219,7 +237,7 @@ class blockSettings
 			
 			if ($db->getRows() > 0):
 				//wenn manueller Modus, prüfen ob Modul-ID in Whitelist
-				if ( $db->getValue('whitelistmode') == 'manual' && !preg_match("/#".$this->mid."#/i", $db->getValue('whitelist')) ) { return; }
+				if ( $db->getValue('whitelistmode') == 'manual' && !empty($this->mid) && !preg_match("/#".$this->mid."#/i", $db->getValue('whitelist')) ) { return; }
 				
 				//Definition aufbereiten
 				$tabnav = $tabcnt = "";
