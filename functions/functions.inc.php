@@ -7,16 +7,6 @@
 	package: redaxo5
 */
 
-
-/*
-Auslesen von Settings in der Modulausgabe:
-
-$s = new blockSettings();
-print_r( $s->getSettings(REX_SLICE_ID) );					//gibt alle Settings als Array aus
-echo $s->getSettings(REX_SLICE_ID, 'feldname');				//gibt Setting-Wert des Feldes 'feldname' aus
-*/
-
-
 class blockSettings
 {
 	public function __construct()
@@ -140,27 +130,38 @@ class blockSettings
 		
 		if (!empty($f_from) && !empty($f_to)):
 			//Felder sind angegeben > Status prüfen
-			if (!$this->getOnlinestatus($sid, $f_from, $f_to)):
-				if (!rex::isBackend()):
-					//im Frontend Ausgabe blocken
-					return false;
+			$status = $this->getOnlinestatus($sid, $f_from, $f_to);
+			
+			if (rex::isBackend()):
+				//Backend > Info ausgeben
+				$lang = rex_addon::get('blocksettings');
+				$field_from = $this->getSettings($sid, $f_from);
+				$field_to = $this->getSettings($sid, $f_to);
+
+				//Texte vorbereiten				
+				$from = (!empty($field_from) && !empty($field_to)) ? $lang->i18n('a1604_mod_visibility_from').' '.$field_from : '';
+				$from = (!empty($field_from) && empty($field_to)) ? $lang->i18n('a1604_mod_visibility_asof').' '.$field_from : $from;
+				$from .= (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $field_from)) ? ' '.$lang->i18n('a1604_mod_visibility_clock') : '';
+				
+				$to = (!empty($field_to)) ? $lang->i18n('a1604_mod_visibility_to').' '.$field_to : '';
+				$to .= (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $field_to)) ? ' '.$lang->i18n('a1604_mod_visibility_clock') : '';
+				
+				//Ausgabeabdunklung (CSS) setzen
+				$opJS = (!empty($from) || !empty($to)) ? '<script>$("#slice'.$sid.' header").after(\'<div class="fmBlockOfflinestatus"><div class="fmBS-icon-left"><i class="rex-icon fa-clock-o"></i></div> '.$lang->i18n('a1604_mod_visibility').' '.$from.' '.$to.'</div>\');</script>' : '';
+				
+				$op .= (!$status && empty($ep->getParam('function'))) ? $opJS.'<script>$("#slice'.$sid.'").not(".rex-slice-offline").addClass("fmBlock-offline");</script>' : $opJS;
+				
+			else:
+				//Frontend > Ausgabe blocken
+				if (isset($_GET['rex_version']) && $_GET['rex_version'] == 1):
+					//Vorschau-Version
+					if (!$status): return false; endif;
 				else:
-					//im Backend Info ausgeben
-					$lang = rex_addon::get('blocksettings');
-					
-					$field_from = $this->getSettings($sid, $f_from);
-					$field_to = $this->getSettings($sid, $f_to);
-					
-						$from = (!empty($field_from) && !empty($field_to)) ? $lang->i18n('a1604_mod_visibility_from').' '.$field_from : '';
-						$from = (!empty($field_from) && empty($field_to)) ? $lang->i18n('a1604_mod_visibility_asof').' '.$field_from : $from;
-							$from .= (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $field_from)) ? ' '.$lang->i18n('a1604_mod_visibility_clock') : '';
-						
-						$to = (!empty($field_to)) ? ' - '.$field_to : '';
-						$to .= (preg_match("/^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2,4} [0-9]{1,2}:[0-9]{1,2}$/i", $field_to)) ? ' '.$lang->i18n('a1604_mod_visibility_clock') : '';
-					
-					$op .= '<script>$("#slice'.$sid.'").not(".rex-slice-offline").addClass("fmBlock-offline"); $("#slice'.$sid.' header").after(\'<div class="fmBlockOfflinestatus"><div class="fmBS-icon-left"><i class="rex-icon fa-clock-o"></i></div> '.$lang->i18n('a1604_mod_visibility').' '.$from.' '.$to.'</div>\');</script>';
-				endif;
+					//Live-Version
+					$op = '$o = new blockSettings(); if ($o->getOnlinestatus("'.$sid.'", "'.$f_from.'", "'.$f_to.'")):'."\n" . $op . 'endif;'."\n";
+				endif;				
 			endif;
+			
 		endif;
 				
 		return $op;
@@ -852,6 +853,82 @@ EOD;
 }
 
 
+
+
+
+
+//Maskierungen + Tags
+if (!function_exists('aFM_maskChar')):
+	function aFM_maskChar($str)
+	{	//Maskiert folgende Sonderzeichen: & " < > '
+		$str = stripslashes($str);
+		$str = htmlspecialchars($str, ENT_QUOTES);
+		$str = trim($str);
+		
+		return $str;
+	}
+endif;
+if (!function_exists('aFM_maskSql')):
+	function aFM_maskSql($str)
+	{	//Maskiert desn Wert für DB-Abfrage
+		$s = array("\\",  "\x00", "\n",  "\r",  "'",  '"', "\x1a");
+    	$r = array("\\\\","\\0","\\n", "\\r", "\'", '\"', "\\Z");
+		return str_replace($s, $r, $str);
+	}
+endif;
+if (!function_exists('aFM_revChar')):
+	function aFM_revChar($str)
+	{	//Demaskiert folgende Sonderzeichen: & " < > '	
+		$chars = array("&amp;amp;quot;"=>'"', "&amp;quot;"=>'"', "&amp;"=>"&", "&lt;"=>"<", "&gt;"=>">", "&quot;"=>'"', "&#039;"=>"'");
+		foreach ($chars as $key => $value):
+			$str = str_replace($key, $value, $str);
+		endforeach;
+		
+		return $str;
+	}
+endif;
+if (!function_exists('aFM_blockTags')):
+	function aFM_blockTags($str)
+	{	//Entfernt bekannte Tags (PHP, JS, HTML)
+		if ($str != ""):
+			$str = stripslashes($str);
+			$str = str_replace("\xc2\xa0", ' ', $str);	//&nbsp; als UTF8 ersetzen in nortmales WhiteSpace
+			$str = strip_tags($str);
+				$phps = array("/<\?php/i", "/<\?/i", "/<%/i", "/<script language=\"php\">/i", "/<script language='php'>/i", "/\?>/i", "/%>/i");
+					foreach ($phps as $key):
+						$str = preg_replace($key, "", $str);
+					endforeach;
+				$js = array("/<script.*>/i", "/<\/script>/i");
+					foreach ($js as $key):
+						$str = preg_replace($key, "", $str);
+					endforeach;
+			$str = trim($str);
+		endif;
+		
+		return $str;
+	}
+endif;
+if (!function_exists('aFM_noQuote')):
+	function aFM_noQuote($str)
+	{	//Ersetzt Double-Quotes: "
+		return str_replace('"', "'", $str);
+	}
+endif;
+if (!function_exists('aFM_textOnly')):
+	function aFM_textOnly($str, $nobreak = false)
+	{	//Entfernt HTML-Tags, Zeilenumbrüche und Tabstops
+		if ($str != ""):
+			$str = stripslashes($str);
+			$str = str_replace("\xc2\xa0", ' ', $str);	//&nbsp; als UTF8 ersetzen in nortmales WhiteSpace
+			$str = str_replace("\t", ' ', $str);		//Tabstop (\t) ersetzen in normales WhiteSpace
+			$str = strip_tags(nl2br($str));
+			$str = ($nobreak) ? str_replace(array("\r\n","\n\r", "\n", "\r"), "", $str) : $str;
+			$str = trim($str);
+		endif;
+		
+		return $str;
+	}
+endif;
 
 
 

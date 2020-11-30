@@ -6,7 +6,7 @@ author: © Falko Müller
 supportpage: https://github.com/iceman-fx/blocksettings
 
 page:
-    title: 'Block-Einstellungen'
+    title: 'translate:a1604_title'
     perm: blocksettings[]
     icon: rex-icon fa-database
     subpages:
@@ -15,4 +15,4 @@ page:
         help: { title: 'translate:a1604_help', icon: rex-icon fa-question-circle, itemclass: pull-right }
 
 requires:
-    redaxo: '^5.7.0' 																						#benötigt mindestens REDAXO 5.3
+    redaxo: '^5.10.0' 																						#benötigt mindestens REDAXO 5.3

@@ -53,6 +53,7 @@ a1604_mod_toggler_info = Zusätzliche Einstellungen dieses Blockes
 a1604_mod_calendar = Kalender öffnen ...
 a1604_mod_visibility = Block sichtbar
 a1604_mod_visibility_from = vom
+a1604_mod_visibility_to = bis
 a1604_mod_visibility_asof = ab
 a1604_mod_visibility_clock = Uhr
 

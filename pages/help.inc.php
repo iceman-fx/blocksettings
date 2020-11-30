@@ -1032,11 +1032,11 @@ echo $s->getSettings(REX_SLICE_ID, 'onlineFrom', 'time');       //Datumsformat w
                     <!-- Allgemein -->
                     <a name="extras"></a>
                     <h3>Online-Status eines Blockes  realisieren:</h3>
-                <p>Über eine kleine Zusatzfunktion im Addon kann ein  Online-Status eines jeden Blockes realisiert werden.<br>
+                <p>Über eine  Zusatzfunktion im Addon kann ein  zeitgesteuerter Online-Status eines jeden Blockes realisiert werden.<br>
                 Definieren Sie dazu 2 Kalenderfelder (type = date|datetime) und hinterlegen die Feldnamen in den Einstellungen dieses Addons.<br>
                   Anschließend wird der Online-Status automatisch bei der Block-Ausgabe mit den im Block hinterlegten Kalenderwerten geprüft und  die Ausgabe ggf. blockiert.                </p>
                 <p>                  Hinweis: Soll keine automatische Prüfung durchgeführt werden, dann lassen Sie die beiden Felder in den Einstellungen einfach leer.                </p>
-<p>Zusätzlich kann über den folgenden Funktionsaufruf eine eigene Abfrage nach dem Online-Status durchgeführt werden:</p>
+<p>Zusätzlich kann über den folgenden Funktionsaufruf innerhalb der Modulausgabe eine eigene Abfrage nach dem Online-Status durchgeführt werden:</p>
                     
 <pre>
 <code>$s = new blockSettings();
