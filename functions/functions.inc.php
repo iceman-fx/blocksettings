@@ -12,6 +12,7 @@ class blockSettings
 	public function __construct()
 	{	//JSON-Datei holen
 		$this->addon 	= rex_addon::get('blocksettings');
+		$this->parsley 	= 'data-parsley-excluded="true"';
 	}
 
 
@@ -352,12 +353,14 @@ EOD;
 						$tabcnt .= '<dt><label>'.$field['label'].'</label></dt>';
 						$tabcnt .= '<dd>';
 						
+                        $type = @$field['type'];
+                        
 						$width = (isset($field['width'])) ? intval($field['width']) : 0;
 							$width = ($width > 0) ? 'style="width:'.$width.'px"' : '';
 						
 						$value = (!is_array(@$field['value'])) ? @$field['value'] : '';
-							$value = ($this->mode == 'add') ? $value : $this->getSettings($this->sid, $field['name']);				//gespeicherten Wert für Value einladen (hat nichts mit den möglichen Values des Feldes zu tun)
-							$value = (empty($value)) ? @$field['default'] : $value;											//falls nichts gespeichert, dann default-Wert nutzen
+							$value = ($this->mode == 'add' && $type != 'checkbox') ? $value : $this->getSettings($this->sid, $field['name']);		//gespeicherten Wert für Value einladen (hat nichts mit den möglichen Values des Feldes zu tun)
+							$value = (empty($value)) ? @$field['default'] : $value;																	//falls nichts gespeichert, dann default-Wert nutzen
 						
 						
 						//echo "<br>SliceID: ".$this->sid;						
@@ -366,7 +369,7 @@ EOD;
 						//echo "<br>Val: ".$value;
 						
 
-						switch ($field['type']):
+						switch ($type):
 							case 'text':			$tabcnt .= $this->getField_text($field, $width, $value);				break;
 							case 'color':			$tabcnt .= $this->getField_color($field, $width, $value);				break;
 							case 'number':			$tabcnt .= $this->getField_number($field, $width, $value);				break;
@@ -425,7 +428,7 @@ EOD;
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
 			
-			$input = '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';
+			$input = '<input '.$this->parsley.' type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';
             
 			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
@@ -446,7 +449,7 @@ EOD;
 			$input = '<div class="input-group fmBS-color-input-group">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 			
-				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="7" placeholder="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" />';
+				$input .= '<input '.$this->parsley.' type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="7" placeholder="'.$ph.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" />';
 				$input .= '<span class="input-group-addon fmBS-colorinput"><input type="color" id="fmBS_'.$name.'_color" value="'.$v.'" pattern="^#([A-Fa-f0-9]{6})$" class="form-control" /></span>';
 				
 				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
@@ -469,7 +472,7 @@ EOD;
 			$min = (isset($field['min'])) ? 'min="'.$field['min'].'"' : '';
 			$max = (isset($field['max'])) ? 'max="'.$field['max'].'"' : '';
 			
-			$input = '<input type="number" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" '.$min.' '.$max.' class="form-control" '.$w.' />';
+			$input = '<input '.$this->parsley.' type="number" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" '.$min.' '.$max.' class="form-control" '.$w.' />';
 			
 			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
@@ -493,8 +496,8 @@ EOD;
 			$input = '<div class="input-group fmBS-range-input-group">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
 				
-				$input .= '<input type="range" id="fmBS_'.$name.'_range" value="'.$v.'" '.$min.' '.$max.' '.$step.' class="form-control" />';
-				$input .= '<input type="hidden" name="blockSettings['.$name.']" id="fmBS_'.$name.'_value" value="'.$v.'" />';
+				$input .= '<input '.$this->parsley.' type="range" id="fmBS_'.$name.'_range" value="'.$v.'" '.$min.' '.$max.' '.$step.' class="form-control" />';
+				$input .= '<input '.$this->parsley.' type="hidden" name="blockSettings['.$name.']" id="fmBS_'.$name.'_value" value="'.$v.'" />';
 				$input .= '<span class="input-group-addon fmBS-rangetext" id="fmBS_'.$name.'_text">'.$v.'</span>';
 				
 				$input .= (!empty($suf)) ? '<span class="input-group-addon"><div>'.$suf.'</div></span>' : '';
@@ -556,7 +559,7 @@ EOD;
 					endif;
 				endif;			
 			
-			$input = '<textarea name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control '.$edc.'" '.$edp.' '.$edh.' '.$w.' '.$h.' />'.$v.'</textarea>';
+			$input = '<textarea '.$this->parsley.' name="blockSettings['.$name.']" id="fmBS_'.$name.'" placeholder="'.$ph.'" rows="5" class="form-control '.$edc.'" '.$edp.' '.$edh.' '.$w.' '.$h.' />'.$v.'</textarea>';
             $input .= $edi;
             
 			$cnt .= $this->getInputGroup($field, $input, $w);
@@ -584,7 +587,7 @@ EOD;
 					return;
 				endif;
 				
-			$input = '<select name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control" '.$w.'>'.$options.'</select>';
+			$input = '<select '.$this->parsley.' name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control" '.$w.'>'.$options.'</select>';
             
 			$cnt .= $this->getInputGroup($field, $input, $w);
 		endif;
@@ -599,10 +602,11 @@ EOD;
 		if (isset($field['name']) && !empty($field['name'])):
 			$name = $this->cleanName($field['name']);
 			$ph = htmlspecialchars(@$field['placeholder']);
+            $checked = (@$field['checked'] === true && $this->mode == 'add') ? true : false;
 			$val = @$field['value'];
 			
-			$sel = ($v == $val) ? 'checked="checked"' : '';
-			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$val.'" '.$sel.' />'.$ph.'</label></div>';
+			$sel = ($checked || $v == $val) ? 'checked="checked"' : '';
+			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input '.$this->parsley.' type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$val.'" '.$sel.' />'.$ph.'</label></div>';
             
 			$cnt .= $input;
 		endif;
@@ -623,7 +627,7 @@ EOD;
 					foreach ($field['value'] as $val=>$title):
 						$sel = ($v == $val) ? 'checked="checked"' : '';
 						$input .= '<dl class="rex-form-group form-group radio"><dd>';
-						$input .= '<div class="radio"><label for="fmBS_'.$name.'-'.$i.'"><input type="radio" name="blockSettings['.$name.']" id="fmBS_'.$name.'-'.$i.'" value="'.$val.'" '.$sel.' />'.$title.'</label></div>';
+						$input .= '<div class="radio"><label for="fmBS_'.$name.'-'.$i.'"><input '.$this->parsley.' type="radio" name="blockSettings['.$name.']" id="fmBS_'.$name.'-'.$i.'" value="'.$val.'" '.$sel.' />'.$title.'</label></div>';
 						$input .= '</dd></dl>';
 						$i++;
 					endforeach;
@@ -657,7 +661,7 @@ EOD;
 			
 			$input = '<div class="input-group fmBS_datepicker-widget">';
 				$input .= (!empty($pre)) ? '<span class="input-group-addon"><div>'.$pre.'</div></span>' : '';
-				$input .= '<input type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" class="form-control" data-datepicker-time="'.$picker_time.'" data-datepicker-mask="true" />';
+				$input .= '<input '.$this->parsley.' type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" class="form-control" data-datepicker-time="'.$picker_time.'" data-datepicker-mask="true" />';
 				$input .= '<span class="input-group-btn"><a class="btn btn-popup" onclick="return false;" title="'.$lang_calendar.'" data-datepicker-dst="fmBS_'.$name.'"><i class="rex-icon fa-calendar"></i></a><div></div></span>';
 			$input .= '</div>';
 			
@@ -689,7 +693,7 @@ EOD;
 $input = <<<EOD
 <div class="rex-js-widget rex-js-widget-media">
 	<div class="input-group">
-		<input class="form-control" type="text" name="$name" value="$v" id="REX_MEDIA_$id" readonly="">
+		<input '.$this->parsley.' class="form-control" type="text" name="$name" value="$v" id="REX_MEDIA_$id" readonly="">
 		<span class="input-group-btn">
 			<a href="#" class="btn btn-popup" onclick="openREXMedia('$id', '$mtypes'); return false;" title="$lang_btn1"><i class="rex-icon rex-icon-open-mediapool"></i></a>
 			<a href="#" class="btn btn-popup" onclick="addREXMedia('$id', '$mtypes'); return false;" title="$lang_btn2"><i class="rex-icon rex-icon-add-media"></i></a>
@@ -738,8 +742,8 @@ EOD;
 $input = <<<EOD
 <div class="rex-js-widget rex-js-widget-medialist">
 	<div class="input-group">
-		<select class="form-control" name="REX_MEDIALIST_SELECT[$id]" id="REX_MEDIALIST_SELECT_$id" size="10">$options</select>
-		<input type="hidden" name="$name" id="REX_MEDIALIST_$id" value="$v" />
+		<select '.$this->parsley.' class="form-control" name="REX_MEDIALIST_SELECT[$id]" id="REX_MEDIALIST_SELECT_$id" size="10">$options</select>
+		<input '.$this->parsley.' type="hidden" name="$name" id="REX_MEDIALIST_$id" value="$v" />
 		<span class="input-group-addon">
 			<div class="btn-group-vertical">
 				<a href="#" class="btn btn-popup" onclick="moveREXMedialist('$id', 'top'); return false;" title="$lang_btn5"><i class="rex-icon rex-icon-top"></i></a>
@@ -784,8 +788,8 @@ EOD;
 			
 $input = <<<EOD
 <div class="input-group">
-	<input class="form-control" type="text" name="REX_LINK_NAME[$id]" value="$aname" id="$rid" readonly="">
-	<input type="hidden" name="$name" id="REX_LINK_$id" value="$aid">
+	<input '.$this->parsley.' class="form-control" type="text" name="REX_LINK_NAME[$id]" value="$aname" id="$rid" readonly="">
+	<input '.$this->parsley.' type="hidden" name="$name" id="REX_LINK_$id" value="$aid">
 	<span class="input-group-btn">
 		<a href="#" class="btn btn-popup" onclick="openLinkMap('REX_LINK_$id', '&clang=1&category_id=0'); return false;" title="$lang_btn1"><i class="rex-icon rex-icon-open-linkmap"></i></a>
 		<a href="#" class="btn btn-popup" onclick="deleteREXLink('$id'); return false;" title="$lang_btn2"><i class="rex-icon rex-icon-delete-link"></i></a>
@@ -831,8 +835,8 @@ EOD;
 			
 $input = <<<EOD
 <div class="input-group">
-	<select class="form-control" name="REX_LINKLIST_SELECT[$id]" id="REX_LINKLIST_SELECT_$id" size="10">$options</select>
-	<input type="hidden" name="$name" id="REX_LINKLIST_$id" value="$v" />
+	<select '.$this->parsley.' class="form-control" name="REX_LINKLIST_SELECT[$id]" id="REX_LINKLIST_SELECT_$id" size="10">$options</select>
+	<input '.$this->parsley.' type="hidden" name="$name" id="REX_LINKLIST_$id" value="$v" />
 	<span class="input-group-addon"><div class="btn-group-vertical">
 		<a href="#" class="btn btn-popup" onclick="moveREXLinklist('$id','top'); return false;" title="$lang_btn3"><i class="rex-icon rex-icon-top"></i></a>
 		<a href="#" class="btn btn-popup" onclick="moveREXLinklist('$id','up'); return false;" title="$lang_btn4"><i class="rex-icon rex-icon-up"></i></a>

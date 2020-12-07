@@ -385,6 +385,7 @@ Tipp: Die Information sollte nur wenige Zeichen umfassen.</td>
     "type": "checkbox",
     "label": "Block verstecken",
     "value": "checked",
+    "checked": false,
     "placeholder": "Ja, diesen Block unsichtbar schalten"
 }
 </pre>
@@ -412,6 +413,11 @@ Tipp: Die Information sollte nur wenige Zeichen umfassen.</td>
   <tr>
     <td valign="top"><strong>value</strong></td>
     <td valign="top">Zu speichernder Wert der Checkbox.</td>
+  </tr>
+  <tr>
+    <td valign="top"><strong>checked</strong></td>
+    <td valign="top">Setzt die Checkbox bereits auf aktiviert, sofern die Checkbox noch nicht gespeichert wurde. <br>
+      Mögliche Werte: true|false </td>
   </tr>
   <tr>
     <td valign="top"><strong>placeholder</strong></td>

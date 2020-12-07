@@ -173,14 +173,6 @@
 			"tab": "Sichtbarkeit",
 			"fields": [
 				{
-					"name": "hideBlock",
-					"type": "checkbox",
-					"label": "Block verstecken",
-					"value": "checked",
-					"placeholder": "Ja, diesen Block unsichtbar schalten"
-				},
-				
-				{
 					"name": "onlineFrom",
 					"type": "datetime",
 					"label": "Sichtbar vom"
@@ -197,6 +189,15 @@
 		{
 			"tab": "Sonstiges",
 			"fields": [
+				{
+					"name": "hideBlock",
+					"type": "checkbox",
+					"label": "Block verstecken",
+					"value": "checked",
+					"checked": false,
+					"placeholder": "Diesen Block in der Ausgabe verstecken"
+				},
+				
 				{
 					"name": "cssClass",
 					"type": "text",
