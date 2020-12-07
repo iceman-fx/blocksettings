@@ -11,7 +11,7 @@ Features
 - Definition von wiederkehrenden Konfigurationsfeldern (z.B. für Abstände, Ausgabebreite, Sichtbarkeit, ...) für jeden Block / Slice im JSON-Format
 - automatische Generierung der Eingabefelder anhand der Definition
 - Ausgabe der generierten Felder automatisch in alle Blöcke oder Beschränkung nur auf ausgewählte Module
-- Abruf aller durch den Nutzer hinterlegten Eingabewerte als Array oder direkter Abruf eines einzelnen Wertes
+- Abruf aller durch den Nutzer hinterlegten Eingabewerte als Array oder direkter Abruf eines einzelnen Wertes, zur individuellen Weiternutzung in der Modulausgabe
 - Zusatzfunktion zum zeitgesteuerten Ein-/Ausblenden von Blöcken integriert (Online von-bis)
 - search_it und bloecks ready
 - benötigt keine anderen Addons als Grundlage und belegt keine Redaxo Modulvariablen
