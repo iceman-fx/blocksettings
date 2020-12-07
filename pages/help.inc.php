@@ -56,7 +56,7 @@
                 </ul>
 
 
-<p>Weiterhin ist die Prüfung des Online-Status eines jeden Blockes integriert, um das zeitgesteuerte Anzeigen/Ausblenden von Blöcken zu ermöglichen.</p>
+<p>Weiterhin ist eine Zusatzfunktion zur Prüfung des Online-Status eines jeden Blockes integriert, um das zeitgesteuerte Anzeigen/Ausblenden von Blöcken zu ermöglichen.</p>
 <p>&nbsp;</p>
 
 <h2>Allgemein</h2>

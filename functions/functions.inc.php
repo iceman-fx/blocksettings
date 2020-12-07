@@ -21,21 +21,35 @@ class blockSettings
 	{	//Variablen deklarieren
 		$slice_ep = 	@$ep->getName();
 		$slice_id = 	intval(@$ep->getParam('slice_id'));
-		//$slice_mid = 	intval(@$ep->getParam('module_id'));
-		//$slice_aid = 	intval(@$ep->getParam('article_id'));
 		
-		$vars = @$_REQUEST['blockSettings'];
+		$vars 	= @$_REQUEST['blockSettings'];
+		//$labels = @$_REQUEST['blockSettingsLabels'];
 		
-
 		if ($slice_id > 0 && is_array($vars) && !empty($vars)):
 			//Settings im Slice speichern
 			$db = rex_sql::factory();
 			$db->setTable(rex::getTable('article_slice'));
-		
+			
+			/*
+				$tmp = array();
+				foreach ($vars as $key=>$val):
+					$tmp[$key]['value'] = $val;
+					$tmp[$key]['label'] = $labels[$key];
+					
+					//array_push($tmp, $key=>array('value'=>$val, 'label'=>$labels[$key]) );
+				endforeach;
+			$db->setValue("bs_settings", serialize($tmp) );
+			*/
+			
 			$db->setValue("bs_settings", serialize($vars) );
 
 			$db->setWhere("id = '".$slice_id."'");
 			$dbreturn = $db->update();
+			
+			
+			echo "<pre>";
+			print_r($tmp);
+			echo "</pre>";
 		endif;
 	}
 
@@ -79,7 +93,8 @@ class blockSettings
 			$val = unserialize($val);
 			
 			if (is_array($val) && !empty($field)):
-				$val = @$val[$field];
+				//$val = @$val[$field]['value'];
+				$val = @$val[$field];				
 				
 				//Konvertierungen
 				switch ($convert):
@@ -248,6 +263,7 @@ class blockSettings
 				$settings = (!empty($json)) ? json_decode($json, TRUE) : '';
 				$settings = (is_array($settings) && array_key_exists('settings', $settings)) ? @$settings['settings'] : array();
 				
+				
 				//Definition auswerten			
 				if (count($settings) > 0):
 					//Setting-JSON enthält Inhalte
@@ -414,6 +430,21 @@ EOD;
 		
 		return $cnt;
 	}
+    
+    
+    function getLabelField($field, $name = "")
+    {	$cnt = "";
+
+		/*
+		if (is_array($field) && !empty($name)):
+            $label = htmlspecialchars(@$field['label']);
+            
+            $cnt = '<input '.$this->parsley.' type="hidden" name="blockSettingsLabels['.$name.']" value="'.$label.'" />';
+		endif;
+        */
+        
+		return $cnt;
+    }
 	
 	
 	
@@ -431,6 +462,7 @@ EOD;
 			$input = '<input '.$this->parsley.' type="text" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" placeholder="'.$ph.'" maxlength="'.@$field['maxlength'].'" class="form-control" '.$w.' />';
             
 			$cnt .= $this->getInputGroup($field, $input, $w);
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -456,6 +488,7 @@ EOD;
 			$input .= '</div>';
 
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -475,6 +508,7 @@ EOD;
 			$input = '<input '.$this->parsley.' type="number" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$v.'" maxlength="'.@$field['maxlength'].'" '.$min.' '.$max.' class="form-control" '.$w.' />';
 			
 			$cnt .= $this->getInputGroup($field, $input, $w);
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -504,6 +538,7 @@ EOD;
 			$input .= '</div>';
 			
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -563,6 +598,7 @@ EOD;
             $input .= $edi;
             
 			$cnt .= $this->getInputGroup($field, $input, $w);
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -590,6 +626,7 @@ EOD;
 			$input = '<select '.$this->parsley.' name="blockSettings['.$name.']" id="fmBS_'.$name.'" '.$multiple.' class="form-control" '.$w.'>'.$options.'</select>';
             
 			$cnt .= $this->getInputGroup($field, $input, $w);
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -609,6 +646,7 @@ EOD;
 			$input = '<div class="checkbox"><label for="fmBS_'.$name.'"><input '.$this->parsley.' type="checkbox" name="blockSettings['.$name.']" id="fmBS_'.$name.'" value="'.$val.'" '.$sel.' />'.$ph.'</label></div>';
             
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -636,6 +674,7 @@ EOD;
 				endif;
 			
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -666,6 +705,7 @@ EOD;
 			$input .= '</div>';
 			
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $name);
 		endif;
 	
 		return $cnt;
@@ -706,6 +746,7 @@ $input = <<<EOD
 EOD;
 
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $this->cleanName($field['name']));
 		endif;
 	
 		return $cnt;
@@ -762,6 +803,7 @@ $input = <<<EOD
 EOD;
 
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $this->cleanName($field['name']));
 		endif;
 	
 		return $cnt;
@@ -798,6 +840,7 @@ $input = <<<EOD
 EOD;
 
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $this->cleanName($field['name']));
 		endif;
 	
 		return $cnt;
@@ -849,14 +892,13 @@ $input = <<<EOD
 EOD;
 
 			$cnt .= $input;
+            $cnt .= $this->getLabelField($field, $this->cleanName($field['name']));
 		endif;	
 	
 		return $cnt;
 	}
 	
 }
-
-
 
 
 
@@ -933,6 +975,7 @@ if (!function_exists('aFM_textOnly')):
 		return $str;
 	}
 endif;
+
 
 
 
